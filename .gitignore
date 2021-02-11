@@ -1,3 +1,4 @@
 tmp_*
 .DS_Store
 *~
+.vs
