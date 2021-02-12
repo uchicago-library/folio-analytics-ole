@@ -1,4 +1,6 @@
 DROP TABLE IF EXISTS local_ole.uc_people;
+
+CREATE TABLE local_ole.uc_people AS 
 SELECT 
 u.id::uuid AS id, 
 CONCAT_WS(' ', u.data#>>'{personal,firstName}', u.data#>>'{personal,middleName}', u.data#>>'{personal,lastName}') AS name,
@@ -40,9 +42,10 @@ u.data#>>'{customFields,studentDepartment}' AS student_department,
 u2.data->>'username' AS creation_user_name,
 (u.data#>>'{metadata,updatedDate}')::timestamp with time zone AS last_write_time,
 u3.data->>'username' AS last_write_user_name
-INTO local_ole.uc_people
 FROM user_users u
 LEFT JOIN user_groups g ON g.id = u.data->>'patronGroup'
 LEFT JOIN user_users u2 ON u2.id = u.data#>>'{metadata,createdByUserId}'
 LEFT JOIN user_users u3 ON u3.id = u.data#>>'{metadata,updatedByUserId}'
 ;
+
+GRANT SELECT ON local_ole.uc_people TO uchicago_ole;
