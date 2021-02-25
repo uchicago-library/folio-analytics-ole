@@ -480,21 +480,23 @@ LIMIT 0;
 /*Bib*/
 TRUNCATE TABLE local_ole.ole_ds_bib_t CASCADE;
 INSERT INTO local_ole.ole_ds_bib_t
-SELECT
-NULL AS bib_id,
+SELECT 
+CAST( ii.hrid AS integer ) AS bib_id,
 NULL AS former_id,
 NULL AS fast_add,
-NULL AS staff_only,
-NULL AS created_by,
-NULL AS date_created,
-NULL AS updated_by,
-NULL AS date_updated,
-NULL AS status,
+(CASE WHEN ii.discovery_suppress THEN 'Y' ELSE 'N' END) AS staff_only,
+ii.data#>>'{metadata,createdByUsername}' AS created_by,
+(ii.data#>>'{metadata,createdDate}')::timestamp with time zone AS date_created,
+ii.data#>>'{metadata,updatedByUsername}' AS updated_by,
+(ii.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated,
+iis."name" AS status,
 NULL AS status_updated_by,
-NULL AS status_updated_date,
+ii.status_updated_date AS status_updated_date,
 NULL AS unique_id_prefix,
-NULL AS content
-LIMIT 0;
+NULL AS CONTENT
+FROM public.inventory_instances ii 
+LEFT JOIN public.inventory_instance_statuses iis 
+       ON iis.id = ii.status_id;
 
 /*BibInfo*/
 TRUNCATE TABLE local_ole.ole_ds_bib_info_t CASCADE;
