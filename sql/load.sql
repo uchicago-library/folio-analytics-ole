@@ -451,17 +451,17 @@ LIMIT 0;
 TRUNCATE TABLE local_ole.ole_cat_itm_typ_t CASCADE;
 INSERT INTO local_ole.ole_cat_itm_typ_t
 SELECT
-NULL AS itm_typ_cd_id,
-NULL AS itm_typ_cd,
-NULL AS itm_typ_nm,
-NULL AS itm_typ_desc,
-NULL AS src,
-NULL AS src_dt,
-NULL AS row_act_ind,
-NULL AS obj_id,
-1.0 AS ver_nbr,
-NULL AS date_updated
-LIMIT 0;
+  md5(ilt.name) AS itm_typ_cd_id,
+  ilt.name AS itm_typ_cd,
+  ilt.name AS itm_typ_nm,
+  NULL AS itm_typ_desc,
+  '' AS src,
+  NULL AS src_dt,
+  '' AS row_act_ind,
+  ilt.id AS obj_id,
+  1.0 AS ver_nbr,
+  (ilt.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated
+FROM public.inventory_loan_types ilt;
 
 /*Location*/
 TRUNCATE TABLE local_ole.ole_locn_t CASCADE;
