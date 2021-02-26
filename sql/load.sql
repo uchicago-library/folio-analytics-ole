@@ -451,17 +451,17 @@ LIMIT 0;
 TRUNCATE TABLE local_ole.ole_cat_itm_typ_t CASCADE;
 INSERT INTO local_ole.ole_cat_itm_typ_t
 SELECT
-NULL AS itm_typ_cd_id,
-NULL AS itm_typ_cd,
-NULL AS itm_typ_nm,
-NULL AS itm_typ_desc,
-NULL AS src,
-NULL AS src_dt,
-NULL AS row_act_ind,
-NULL AS obj_id,
-1.0 AS ver_nbr,
-NULL AS date_updated
-LIMIT 0;
+  md5(ilt.name) AS itm_typ_cd_id,
+  ilt.name AS itm_typ_cd,
+  ilt.name AS itm_typ_nm,
+  NULL AS itm_typ_desc,
+  '' AS src,
+  NULL AS src_dt,
+  '' AS row_act_ind,
+  ilt.id AS obj_id,
+  1.0 AS ver_nbr,
+  (ilt.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated
+FROM public.inventory_loan_types ilt;
 
 /*Location*/
 TRUNCATE TABLE local_ole.ole_locn_t CASCADE;
@@ -480,21 +480,23 @@ LIMIT 0;
 /*Bib*/
 TRUNCATE TABLE local_ole.ole_ds_bib_t CASCADE;
 INSERT INTO local_ole.ole_ds_bib_t
-SELECT
-NULL AS bib_id,
+SELECT 
+CAST( ii.hrid AS integer ) AS bib_id,
 NULL AS former_id,
 NULL AS fast_add,
-NULL AS staff_only,
-NULL AS created_by,
-NULL AS date_created,
-NULL AS updated_by,
-NULL AS date_updated,
-NULL AS status,
+(CASE WHEN ii.discovery_suppress THEN 'Y' ELSE 'N' END) AS staff_only,
+ii.data#>>'{metadata,createdByUsername}' AS created_by,
+(ii.data#>>'{metadata,createdDate}')::timestamp with time zone AS date_created,
+ii.data#>>'{metadata,updatedByUsername}' AS updated_by,
+(ii.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated,
+iis."name" AS status,
 NULL AS status_updated_by,
-NULL AS status_updated_date,
+ii.status_updated_date AS status_updated_date,
 NULL AS unique_id_prefix,
-NULL AS content
-LIMIT 0;
+NULL AS CONTENT
+FROM public.inventory_instances ii 
+LEFT JOIN public.inventory_instance_statuses iis 
+       ON iis.id = ii.status_id;
 
 /*BibInfo*/
 TRUNCATE TABLE local_ole.ole_ds_bib_info_t CASCADE;
