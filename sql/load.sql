@@ -435,17 +435,45 @@ NULL AS date_updated
 LIMIT 0;
 
 /*ItemStatus*/
+/* 
+ * Pull List only needs to display status labels.
+ * Strategy is to create this table based on the hard-coded values.
+ * The ID for referring tables then can always be computed from the text value of the status of the item.
+ * */
 TRUNCATE TABLE local_ole.ole_dlvr_item_avail_stat_t CASCADE;
-INSERT INTO local_ole.ole_dlvr_item_avail_stat_t
-SELECT
-NULL AS item_avail_stat_id,
-NULL AS obj_id,
-1.0 AS ver_nbr,
-NULL AS item_avail_stat_cd,
-NULL AS item_avail_stat_nm,
-NULL AS row_act_ind,
-NULL AS date_updated
-LIMIT 0;
+WITH item_stats(stat) AS (
+	VALUES
+		('Available'),
+		('Awaiting pickup'),
+		('Awaiting delivery'),
+		('Checked out'),
+		('Claimed returned'),
+		('Declared lost'),
+		('In process'),
+		('In process (non-requestable)'),
+		('In transit'),
+		('Intellectual item'),
+		('Long missing'),
+		('Lost and paid'),
+		('Missing'),
+		('On order'),
+		('Paged'),
+		('Restricted'),
+		('Order closed'),
+		('Unavailable'),
+		('Unknown'),
+		('Withdrawn')
+)
+INSERT INTO local_ole.ole_dlvr_item_avail_stat_t 
+SELECT 
+	md5(stat) AS item_avail_stat_id,
+	stat AS obj_id,
+	1.0 AS ver_nbr,
+	stat AS item_avail_stat_cd,
+	stat AS item_avail_stat_nm,
+	'Y' AS row_act_ind,
+	NULL AS date_updated
+FROM item_stats;
 
 /*ItemType1*/
 TRUNCATE TABLE local_ole.ole_cat_itm_typ_t CASCADE;
