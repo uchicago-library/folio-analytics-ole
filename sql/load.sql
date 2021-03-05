@@ -601,15 +601,45 @@ FROM
 	LEFT JOIN inventory_locations AS holdings_permanent_location ON holdings.permanent_location_id = holdings_permanent_location.id;
 
 /*HoldingNote*/
+/*
+ * Original defn of holdings_note_id:
+ * holdings_note_id INT NOT NULL
+ *
+ * Problem:
+ * OLE uses holdings_note_id as primay key, but FOLIO stores notes in a JSON
+ * array with no key, no way to reliably recreate same key.
+ * Initial impression is that holdings notes are only reported out and that
+ * holdings_note_id is never used by the MS Access apps.
+ *
+ * Solution 1: Do not both with holdings_note_id, lift PRIMARY KEY and NOT NULL
+ * constraints.
+ * This solution takes about 1 m. 15 sec. to build the table in hosted
+ * environment.
+ *
+ * Solution 2: use SERIAL pseudo-type or explict SEQUENCE for holdings_note_id.
+ * INSERT INTO... SELECT will require use of nextval() to set holdings_note_id.
+ * In this case, may want to put a cache on the sequence to speed inserts.
+ *
+ * See also parallel note in load.sql
+ * 
+ * Credit: SELECT adapted from
+ * https://github.com/folio-org/folio-analytics/blob/main/sql/derived_tables/holdings_notes.sql
+ */
 TRUNCATE TABLE local_ole.ole_ds_holdings_note_t CASCADE;
 INSERT INTO local_ole.ole_ds_holdings_note_t
 SELECT
-NULL AS holdings_note_id,
-NULL AS holdings_id,
-NULL AS type,
-NULL AS note,
-NULL AS date_updated
-LIMIT 0;
+    /*holdings_note_id should be automatic */
+    -- nextval('local_ole.ole_ds_holdings_note_t_holdings_note_id_seq') AS holdings_note_id,
+    NULL AS holdings_note_id,
+    CAST( holdings.hrid AS integer ) AS holdings_id,
+    holdings_note_types.name AS note_type_name,
+    json_extract_path_text(notes.data, 'note') AS note,
+    NULL AS date_updated
+FROM
+    inventory_holdings AS holdings
+    CROSS JOIN json_array_elements(json_extract_path(data, 'notes')) AS notes (data)
+    LEFT JOIN inventory_holdings_note_types AS holdings_note_types
+        ON json_extract_path_text(notes.data, 'holdingsNoteTypeId') = holdings_note_types.id;
 
 /*Item*/
 TRUNCATE TABLE local_ole.ole_ds_item_t CASCADE;
