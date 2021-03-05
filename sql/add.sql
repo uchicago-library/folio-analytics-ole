@@ -492,13 +492,33 @@ CREATE TABLE local_ole.ole_ds_holdings_t (
 );
 
 /*HoldingNote*/
+/*
+ * Original defn of holdings_note_id:
+ * holdings_note_id INT NOT NULL
+ *
+ * Problem:
+ * OLE uses holdings_note_id as primay key, but FOLIO stores notes in a JSON
+ * array with no key, no way to reliably recreate same key.
+ * Initial impression is that holdings notes are only reported out and that
+ * holdings_note_id is never used by the MS Access apps.
+ *
+ * Solution 1: Do not both with holdings_note_id, lift PRIMARY KEY and NOT NULL
+ * constraints.
+ *
+ * Solution 2: use SERIAL pseudo-type or explict SEQUENCE for holdings_note_id.
+ * If so, may want to put a cache on the sequence to speed inserts.
+ *
+ * See also parallel note in load.sql
+ */
 CREATE TABLE local_ole.ole_ds_holdings_note_t (
-    holdings_note_id INT NOT NULL,
+    holdings_note_id INT,
     holdings_id INT NOT NULL,
     type VARCHAR(100),
     note TEXT,
-    date_updated TIMESTAMP,
+    date_updated TIMESTAMP
+    /*,
     CONSTRAINT PK_ole_ds_holdings_note_t PRIMARY KEY(holdings_note_id)
+    */
 );
 
 /*Item*/
