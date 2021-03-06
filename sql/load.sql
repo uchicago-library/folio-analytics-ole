@@ -1,18 +1,28 @@
 /*
- * Convert hexidecimal to integer (PSGL has no native facility)
- *
- * From Josh Kupershmidt <schmiddy(at)gmail(dot)com>, 2010-10-19, pgsql-novice mailing list
- * https://www.postgresql.org/message-id/AANLkTi%3D34m32htPtrxb%2BTUks9i2oxu0YbJ7XyPbhK6BJ%40mail.gmail.com
+ * FunctionS to convert FOLIO UUIDs to OLE IDs, both as VARCHAR AND INT
  */
-CREATE OR REPLACE FUNCTION local_ole.hex_to_int(hexval varchar) RETURNS integer AS $$
+DROP FUNCTION local_ole.uuid_to_ole_id_str;
+CREATE OR REPLACE FUNCTION local_ole.uuid_to_ole_id_str(hexval varchar) RETURNS varchar(40) AS $$
 DECLARE
-   result  int;
+   result   varchar(40);
 BEGIN
- EXECUTE 'SELECT x''' || hexval || '''::int' INTO result;
+ EXECUTE 'SELECT x''' || substring(hexval FOR 8) || '''::int::text' INTO result;
  RETURN result;
 END;
 $$
 LANGUAGE 'plpgsql' IMMUTABLE STRICT;
+
+DROP FUNCTION local_ole.uuid_to_ole_id_int;
+CREATE OR REPLACE FUNCTION local_ole.uuid_to_ole_id_int(hexval varchar) RETURNS integer AS $$
+DECLARE
+   result   integer;
+BEGIN
+ EXECUTE 'SELECT x''' || substring(hexval FOR 8) || '''::int' INTO result;
+ RETURN result;
+END;
+$$
+LANGUAGE 'plpgsql' IMMUTABLE STRICT;
+
 
 /*Country*/
 TRUNCATE TABLE local_ole.krlc_cntry_t CASCADE;
@@ -498,7 +508,7 @@ TRUNCATE TABLE local_ole.ole_cat_itm_typ_t CASCADE;
  */
 INSERT INTO local_ole.ole_cat_itm_typ_t
 SELECT
-  local_ole.hex_to_int(substring(loan_types.id FOR 8))::text AS itm_typ_cd_id,
+  local_ole.uuid_to_ole_id_str(loan_types.id) AS itm_typ_cd_id,
   loan_types.name AS itm_typ_cd,
   loan_types.name AS itm_typ_nm,
   NULL AS itm_typ_desc,
