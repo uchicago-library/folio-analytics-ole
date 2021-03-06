@@ -1,3 +1,19 @@
+/*
+ * Convert hexidecimal to integer (PSGL has no native facility)
+ *
+ * From Josh Kupershmidt <schmiddy(at)gmail(dot)com>, 2010-10-19, pgsql-novice mailing list
+ * https://www.postgresql.org/message-id/AANLkTi%3D34m32htPtrxb%2BTUks9i2oxu0YbJ7XyPbhK6BJ%40mail.gmail.com
+ */
+CREATE OR REPLACE FUNCTION local_ole.hex_to_int(hexval varchar) RETURNS integer AS $$
+DECLARE
+   result  int;
+BEGIN
+ EXECUTE 'SELECT x''' || hexval || '''::int' INTO result;
+ RETURN result;
+END;
+$$
+LANGUAGE 'plpgsql' IMMUTABLE STRICT;
+
 /*Country*/
 TRUNCATE TABLE local_ole.krlc_cntry_t CASCADE;
 INSERT INTO local_ole.krlc_cntry_t
@@ -477,19 +493,22 @@ FROM item_stats;
 
 /*ItemType1*/
 TRUNCATE TABLE local_ole.ole_cat_itm_typ_t CASCADE;
+/*
+ * Use first four bytes of UUID to generate an integer item type ID
+ */
 INSERT INTO local_ole.ole_cat_itm_typ_t
 SELECT
-  md5(ilt.name) AS itm_typ_cd_id,
-  ilt.name AS itm_typ_cd,
-  ilt.name AS itm_typ_nm,
+  local_ole.hex_to_int(substring(loan_types.id FOR 8))::text AS itm_typ_cd_id,
+  loan_types.name AS itm_typ_cd,
+  loan_types.name AS itm_typ_nm,
   NULL AS itm_typ_desc,
   '' AS src,
   NULL AS src_dt,
   '' AS row_act_ind,
-  ilt.id AS obj_id,
+  loan_types.id AS obj_id,
   1.0 AS ver_nbr,
-  (ilt.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated
-FROM public.inventory_loan_types ilt;
+  (loan_types.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated
+FROM public.inventory_loan_types loan_types;
 
 /*Location*/
 TRUNCATE TABLE local_ole.ole_locn_t CASCADE;
