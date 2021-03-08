@@ -524,15 +524,15 @@ FROM public.inventory_loan_types loan_types;
 TRUNCATE TABLE local_ole.ole_locn_t CASCADE;
 INSERT INTO local_ole.ole_locn_t
 SELECT
-NULL AS locn_id,
-NULL AS obj_id,
-1.0 AS ver_nbr,
-NULL AS locn_cd,
-NULL AS locn_name,
-NULL AS level_id,
-NULL AS parent_locn_id,
-NULL AS row_act_ind
-LIMIT 0;
+    local_ole.uuid_to_ole_id_str(id) AS locn_id,
+    id AS obj_id,
+    1.0 AS ver_nbr,
+    code AS locn_cd,
+    description AS locn_name,
+    '5' AS level_id,
+    NULL AS parent_locn_id,
+    CASE WHEN is_active THEN 'Y' ELSE 'N' END AS row_act_ind
+FROM inventory_locations;
 
 /*Bib*/
 TRUNCATE TABLE local_ole.ole_ds_bib_t CASCADE;
