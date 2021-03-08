@@ -449,16 +449,16 @@ LIMIT 0;
 TRUNCATE TABLE local_ole.ole_cat_shvlg_schm_t CASCADE;
 INSERT INTO local_ole.ole_cat_shvlg_schm_t
 SELECT
-NULL AS shvlg_schm_id,
-NULL AS obj_id,
-1.0 AS ver_nbr,
-NULL AS shvlg_schm_cd,
-NULL AS shvlg_schm_nm,
-NULL AS src,
-NULL AS src_dt,
-NULL AS row_act_ind,
-NULL AS date_updated
-LIMIT 0;
+    local_ole.uuid_to_ole_id_int(id) AS shvlg_schm_id,
+    id AS obj_id,
+    1.0 AS ver_nbr,
+    substring(name FOR 40) AS shvlg_schm_cd,
+    name AS shvlg_schm_nm,
+    source AS src,
+    '2012-03-22 00:00:00.0'::timestamp AS src_dt,
+    'Y' AS row_act_ind,
+    NULL AS date_updated
+FROM inventory_call_number_types;
 
 /*ItemStatus*/
 /* 
@@ -580,7 +580,7 @@ SELECT
 	NULL AS location_id,
 	holdings_permanent_location.name AS location,
 	NULL AS location_level,
-	NULL AS call_number_type_id,
+    local_ole.uuid_to_ole_id_int(call_number_type_id) AS call_number_type_id,
 	holdings.call_number_prefix AS call_number_prefix,
 	holdings.call_number AS call_number,
 	NULL AS shelving_order,
