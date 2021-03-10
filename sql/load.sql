@@ -465,40 +465,43 @@ FROM inventory_call_number_types;
  * Pull List only needs to display status labels.
  * Strategy is to create this table based on the hard-coded values.
  * The ID for referring tables then can always be computed from the text value of the status of the item.
- * */
+ *
+ * Note: item status id is defined as VARCHAR(40) but referenced as INT, so
+ * we created an MD5 checksum, then use the same trick as for UUIDs.
+ */
 TRUNCATE TABLE local_ole.ole_dlvr_item_avail_stat_t CASCADE;
 WITH item_stats(stat) AS (
-	VALUES
-		('Available'),
-		('Awaiting pickup'),
-		('Awaiting delivery'),
-		('Checked out'),
-		('Claimed returned'),
-		('Declared lost'),
-		('In process'),
-		('In process (non-requestable)'),
-		('In transit'),
-		('Intellectual item'),
-		('Long missing'),
-		('Lost and paid'),
-		('Missing'),
-		('On order'),
-		('Paged'),
-		('Restricted'),
-		('Order closed'),
-		('Unavailable'),
-		('Unknown'),
-		('Withdrawn')
+    VALUES
+        ('Available'),
+        ('Awaiting pickup'),
+        ('Awaiting delivery'),
+        ('Checked out'),
+        ('Claimed returned'),
+        ('Declared lost'),
+        ('In process'),
+        ('In process (non-requestable)'),
+        ('In transit'),
+        ('Intellectual item'),
+        ('Long missing'),
+        ('Lost and paid'),
+        ('Missing'),
+        ('On order'),
+        ('Paged'),
+        ('Restricted'),
+        ('Order closed'),
+        ('Unavailable'),
+        ('Unknown'),
+        ('Withdrawn')
 )
 INSERT INTO local_ole.ole_dlvr_item_avail_stat_t 
 SELECT 
-	md5(stat) AS item_avail_stat_id,
-	stat AS obj_id,
-	1.0 AS ver_nbr,
-	stat AS item_avail_stat_cd,
-	stat AS item_avail_stat_nm,
-	'Y' AS row_act_ind,
-	NULL AS date_updated
+    local_ole.uuid_to_ole_id_str(md5(stat)) AS item_avail_stat_id,
+    stat AS obj_id,
+    1.0 AS ver_nbr,
+    stat AS item_avail_stat_cd,
+    stat AS item_avail_stat_nm,
+    'Y' AS row_act_ind,
+    NULL AS date_updated
 FROM item_stats;
 
 /*ItemType1*/
