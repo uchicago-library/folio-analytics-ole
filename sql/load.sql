@@ -628,7 +628,7 @@ SELECT
 	(holdings.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated
 FROM 
 	inventory_holdings holdings
-	JOIN inventory_instances instance ON instance.id = holdings.data#>>'{instanceId}' 
+	JOIN inventory_instances instance ON instance.id = holdings.instance_id
 	LEFT JOIN inventory_holdings_types AS holdings_type ON holdings.holdings_type_id = holdings_type.id
 	LEFT JOIN inventory_locations AS holdings_permanent_location ON holdings.permanent_location_id = holdings_permanent_location.id;
 
