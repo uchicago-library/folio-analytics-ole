@@ -660,18 +660,17 @@ FROM
 TRUNCATE TABLE local_ole.ole_ds_holdings_note_t CASCADE;
 INSERT INTO local_ole.ole_ds_holdings_note_t
 SELECT
-    /*holdings_note_id should be automatic */
-    -- nextval('local_ole.ole_ds_holdings_note_t_holdings_note_id_seq') AS holdings_note_id,
     NULL AS holdings_note_id,
     CAST( holdings.hrid AS integer ) AS holdings_id,
-    holdings_note_types.name AS note_type_name,
+    CASE WHEN (notes.data#>>'{staffOnly}')::boolean
+        THEN 'nonPublic' 
+        ELSE 'Public'
+    END AS type,
     json_extract_path_text(notes.data, 'note') AS note,
     NULL AS date_updated
 FROM
     inventory_holdings AS holdings
-    CROSS JOIN json_array_elements(json_extract_path(data, 'notes')) AS notes (data)
-    LEFT JOIN inventory_holdings_note_types AS holdings_note_types
-        ON json_extract_path_text(notes.data, 'holdingsNoteTypeId') = holdings_note_types.id;
+    CROSS JOIN json_array_elements(json_extract_path(data, 'notes')) AS notes (data);
 
 /*Item*/
 /* about 20 min. */
@@ -737,12 +736,17 @@ FROM
 TRUNCATE TABLE local_ole.ole_ds_item_note_t CASCADE;
 INSERT INTO local_ole.ole_ds_item_note_t
 SELECT
-NULL AS item_note_id,
-NULL AS item_id,
-NULL AS type,
-NULL AS note,
-NULL AS date_updated
-LIMIT 0;
+    NULL AS item_note_id,
+    CAST( items.hrid AS integer ) AS item_id,
+    CASE WHEN (notes.data#>>'{staffOnly}')::boolean
+        THEN 'nonPublic' 
+        ELSE 'Public'
+    END AS type,
+    json_extract_path_text(notes.data, 'note') AS note,
+    NULL AS date_updated
+FROM
+    inventory_items AS items
+    CROSS JOIN json_array_elements(json_extract_path(data, 'notes')) AS notes (data);
 
 /*ItemHolding*/
 TRUNCATE TABLE local_ole.ole_ds_item_holdings_t CASCADE;

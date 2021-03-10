@@ -586,13 +586,18 @@ CREATE TABLE local_ole.ole_ds_item_t (
 );
 
 /*ItemNote*/
+/*
+ * Removed primary key, no good way to generate one 
+ */
 CREATE TABLE local_ole.ole_ds_item_note_t (
-    item_note_id INT NOT NULL,
+    item_note_id INT /* NOT NULL */,
     item_id INT,
     type VARCHAR(50),
     note TEXT,
-    date_updated TIMESTAMP,
+    date_updated TIMESTAMP
+    /*,
     CONSTRAINT PK_ole_ds_item_note_t PRIMARY KEY(item_note_id)
+    */
 );
 
 /*ItemHolding*/
