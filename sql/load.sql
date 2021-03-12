@@ -1,3 +1,29 @@
+/*
+ * FunctionS to convert FOLIO UUIDs to OLE IDs, both as VARCHAR AND INT
+ */
+DROP FUNCTION local_ole.uuid_to_ole_id_str;
+CREATE OR REPLACE FUNCTION local_ole.uuid_to_ole_id_str(hexval varchar) RETURNS varchar(40) AS $$
+DECLARE
+   result   varchar(40);
+BEGIN
+ EXECUTE 'SELECT x''' || substring(hexval FOR 8) || '''::int::text' INTO result;
+ RETURN result;
+END;
+$$
+LANGUAGE 'plpgsql' IMMUTABLE STRICT;
+
+DROP FUNCTION local_ole.uuid_to_ole_id_int;
+CREATE OR REPLACE FUNCTION local_ole.uuid_to_ole_id_int(hexval varchar) RETURNS integer AS $$
+DECLARE
+   result   integer;
+BEGIN
+ EXECUTE 'SELECT x''' || substring(hexval FOR 8) || '''::int' INTO result;
+ RETURN result;
+END;
+$$
+LANGUAGE 'plpgsql' IMMUTABLE STRICT;
+
+
 /*Country*/
 TRUNCATE TABLE local_ole.krlc_cntry_t CASCADE;
 INSERT INTO local_ole.krlc_cntry_t
@@ -423,87 +449,93 @@ LIMIT 0;
 TRUNCATE TABLE local_ole.ole_cat_shvlg_schm_t CASCADE;
 INSERT INTO local_ole.ole_cat_shvlg_schm_t
 SELECT
-NULL AS shvlg_schm_id,
-NULL AS obj_id,
-1.0 AS ver_nbr,
-NULL AS shvlg_schm_cd,
-NULL AS shvlg_schm_nm,
-NULL AS src,
-NULL AS src_dt,
-NULL AS row_act_ind,
-NULL AS date_updated
-LIMIT 0;
+    local_ole.uuid_to_ole_id_int(id) AS shvlg_schm_id,
+    id AS obj_id,
+    1.0 AS ver_nbr,
+    substring(name FOR 40) AS shvlg_schm_cd,
+    name AS shvlg_schm_nm,
+    source AS src,
+    '2012-03-22 00:00:00.0'::timestamp AS src_dt,
+    'Y' AS row_act_ind,
+    NULL AS date_updated
+FROM inventory_call_number_types;
 
 /*ItemStatus*/
 /* 
  * Pull List only needs to display status labels.
  * Strategy is to create this table based on the hard-coded values.
  * The ID for referring tables then can always be computed from the text value of the status of the item.
- * */
+ *
+ * Note: item status id is defined as VARCHAR(40) but referenced as INT, so
+ * we created an MD5 checksum, then use the same trick as for UUIDs.
+ */
 TRUNCATE TABLE local_ole.ole_dlvr_item_avail_stat_t CASCADE;
 WITH item_stats(stat) AS (
-	VALUES
-		('Available'),
-		('Awaiting pickup'),
-		('Awaiting delivery'),
-		('Checked out'),
-		('Claimed returned'),
-		('Declared lost'),
-		('In process'),
-		('In process (non-requestable)'),
-		('In transit'),
-		('Intellectual item'),
-		('Long missing'),
-		('Lost and paid'),
-		('Missing'),
-		('On order'),
-		('Paged'),
-		('Restricted'),
-		('Order closed'),
-		('Unavailable'),
-		('Unknown'),
-		('Withdrawn')
+    VALUES
+        ('Available'),
+        ('Awaiting pickup'),
+        ('Awaiting delivery'),
+        ('Checked out'),
+        ('Claimed returned'),
+        ('Declared lost'),
+        ('In process'),
+        ('In process (non-requestable)'),
+        ('In transit'),
+        ('Intellectual item'),
+        ('Long missing'),
+        ('Lost and paid'),
+        ('Missing'),
+        ('On order'),
+        ('Paged'),
+        ('Restricted'),
+        ('Order closed'),
+        ('Unavailable'),
+        ('Unknown'),
+        ('Withdrawn')
 )
 INSERT INTO local_ole.ole_dlvr_item_avail_stat_t 
 SELECT 
-	md5(stat) AS item_avail_stat_id,
-	stat AS obj_id,
-	1.0 AS ver_nbr,
-	stat AS item_avail_stat_cd,
-	stat AS item_avail_stat_nm,
-	'Y' AS row_act_ind,
-	NULL AS date_updated
+    local_ole.uuid_to_ole_id_str(md5(stat)) AS item_avail_stat_id,
+    stat AS obj_id,
+    1.0 AS ver_nbr,
+    stat AS item_avail_stat_cd,
+    stat AS item_avail_stat_nm,
+    'Y' AS row_act_ind,
+    NULL AS date_updated
 FROM item_stats;
 
 /*ItemType1*/
 TRUNCATE TABLE local_ole.ole_cat_itm_typ_t CASCADE;
+/*
+ * Use first four bytes of UUID to generate an integer item type ID
+ */
 INSERT INTO local_ole.ole_cat_itm_typ_t
 SELECT
-  md5(ilt.name) AS itm_typ_cd_id,
-  ilt.name AS itm_typ_cd,
-  ilt.name AS itm_typ_nm,
+  local_ole.uuid_to_ole_id_str(loan_types.id) AS itm_typ_cd_id,
+  loan_types.name AS itm_typ_cd,
+  loan_types.name AS itm_typ_nm,
   NULL AS itm_typ_desc,
   '' AS src,
   NULL AS src_dt,
   '' AS row_act_ind,
-  ilt.id AS obj_id,
+  loan_types.id AS obj_id,
   1.0 AS ver_nbr,
-  (ilt.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated
-FROM public.inventory_loan_types ilt;
+  (loan_types.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated
+FROM public.inventory_loan_types loan_types;
 
 /*Location*/
 TRUNCATE TABLE local_ole.ole_locn_t CASCADE;
 INSERT INTO local_ole.ole_locn_t
 SELECT
-NULL AS locn_id,
-NULL AS obj_id,
-1.0 AS ver_nbr,
-NULL AS locn_cd,
-NULL AS locn_name,
-NULL AS level_id,
-NULL AS parent_locn_id,
-NULL AS row_act_ind
-LIMIT 0;
+    local_ole.uuid_to_ole_id_str(id) AS locn_id,
+    id AS obj_id,
+    1.0 AS ver_nbr,
+    code AS locn_cd,
+    description AS locn_name,
+    '5' AS level_id,
+    NULL AS parent_locn_id,
+    CASE WHEN is_active THEN 'Y' ELSE 'N' END AS row_act_ind
+FROM inventory_locations;
 
 /*Bib*/
 TRUNCATE TABLE local_ole.ole_ds_bib_t CASCADE;
@@ -551,7 +583,7 @@ SELECT
 	NULL AS location_id,
 	holdings_permanent_location.name AS location,
 	NULL AS location_level,
-	NULL AS call_number_type_id,
+    local_ole.uuid_to_ole_id_int(call_number_type_id) AS call_number_type_id,
 	holdings.call_number_prefix AS call_number_prefix,
 	holdings.call_number AS call_number,
 	NULL AS shelving_order,
@@ -596,7 +628,7 @@ SELECT
 	(holdings.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated
 FROM 
 	inventory_holdings holdings
-	JOIN inventory_instances instance ON instance.id = holdings.data#>>'{instanceId}' 
+	JOIN inventory_instances instance ON instance.id = holdings.instance_id
 	LEFT JOIN inventory_holdings_types AS holdings_type ON holdings.holdings_type_id = holdings_type.id
 	LEFT JOIN inventory_locations AS holdings_permanent_location ON holdings.permanent_location_id = holdings_permanent_location.id;
 
@@ -628,85 +660,93 @@ FROM
 TRUNCATE TABLE local_ole.ole_ds_holdings_note_t CASCADE;
 INSERT INTO local_ole.ole_ds_holdings_note_t
 SELECT
-    /*holdings_note_id should be automatic */
-    -- nextval('local_ole.ole_ds_holdings_note_t_holdings_note_id_seq') AS holdings_note_id,
     NULL AS holdings_note_id,
     CAST( holdings.hrid AS integer ) AS holdings_id,
-    holdings_note_types.name AS note_type_name,
+    CASE WHEN (notes.data#>>'{staffOnly}')::boolean
+        THEN 'nonPublic' 
+        ELSE 'Public'
+    END AS type,
     json_extract_path_text(notes.data, 'note') AS note,
     NULL AS date_updated
 FROM
     inventory_holdings AS holdings
-    CROSS JOIN json_array_elements(json_extract_path(data, 'notes')) AS notes (data)
-    LEFT JOIN inventory_holdings_note_types AS holdings_note_types
-        ON json_extract_path_text(notes.data, 'holdingsNoteTypeId') = holdings_note_types.id;
+    CROSS JOIN json_array_elements(json_extract_path(data, 'notes')) AS notes (data);
 
 /*Item*/
+/* about 20 min. */
 TRUNCATE TABLE local_ole.ole_ds_item_t CASCADE;
 INSERT INTO local_ole.ole_ds_item_t
 SELECT
-NULL AS item_id,
-NULL AS holdings_id,
-NULL AS barcode,
-NULL AS fast_add,
-NULL AS staff_only,
-NULL AS uri,
-NULL AS item_type_id,
-NULL AS temp_item_type_id,
-NULL AS item_status_id,
-NULL AS item_status_date_updated,
-NULL AS location_id,
-NULL AS location,
-NULL AS location_level,
-NULL AS call_number_type_id,
-NULL AS call_number_prefix,
-NULL AS call_number,
-NULL AS shelving_order,
-NULL AS enumeration,
-NULL AS chronology,
-NULL AS copy_number,
-NULL AS num_pieces,
-NULL AS desc_of_pieces,
-NULL AS purchase_order_line_item_id,
-NULL AS vendor_line_item_id,
-NULL AS fund,
-NULL AS price,
-NULL AS claims_returned,
-NULL AS claims_returned_date_created,
-NULL AS claims_returned_note,
-NULL AS current_borrower,
-NULL AS proxy_borrower,
-NULL AS check_out_date_time,
-NULL AS due_date_time,
-NULL AS check_in_note,
-NULL AS item_damaged_status,
-NULL AS item_damaged_note,
-NULL AS missing_pieces,
-NULL AS missing_pieces_effective_date,
-NULL AS missing_pieces_count,
-NULL AS missing_pieces_note,
-NULL AS barcode_arsl,
-NULL AS high_density_storage_id,
-NULL AS num_of_renew,
-NULL AS created_by,
-NULL AS date_created,
-NULL AS updated_by,
-NULL AS date_updated,
-NULL AS unique_id_prefix,
-NULL AS org_due_date_time,
-NULL AS volume_number
-LIMIT 0;
+    items.hrid::int AS item_id,
+    holdings.hrid::int AS holdings_id,
+    items.barcode AS barcode,
+    NULL AS fast_add,
+    (CASE WHEN items.discovery_suppress THEN 'Y' ELSE 'N' END) AS staff_only,
+    NULL AS uri,
+    local_ole.hex_to_int(substring(items.permanent_loan_type_id FOR 8))::int AS item_type_id,
+    local_ole.hex_to_int(substring(items.temporary_loan_type_id FOR 8))::int AS temp_item_type_id,
+    local_ole.uuid_to_ole_id_int(md5(items.data#>>'{status,name}')) AS item_status_id,
+    (items.data#>>'{status,date}')::timestamp AS item_status_date_updated,
+    local_ole.uuid_to_ole_id_int(items.permanent_location_id) AS location_id,
+    locations.name AS location,
+    NULL AS location_level,
+    local_ole.uuid_to_ole_id_int(item_level_call_number_type_id) AS call_number_type_id,
+    item_level_call_number_prefix AS call_number_prefix,
+    item_level_call_number AS call_number,
+    NULL AS shelving_order,
+    enumeration AS enumeration,
+    chronology AS chronology,
+    items.copy_number AS copy_number,
+    number_of_pieces AS num_pieces,
+    description_of_pieces AS desc_of_pieces,
+    NULL AS purchase_order_line_item_id,
+    NULL AS vendor_line_item_id,
+    NULL AS fund,
+    NULL AS price,
+    NULL AS claims_returned,
+    NULL AS claims_returned_date_created,
+    NULL AS claims_returned_note,
+    NULL AS current_borrower,
+    NULL AS proxy_borrower,
+    NULL AS check_out_date_time,
+    NULL AS due_date_time,
+    NULL AS check_in_note,
+    NULL AS item_damaged_status,
+    NULL AS item_damaged_note,
+    NULL AS missing_pieces,
+    NULL AS missing_pieces_effective_date,
+    NULL AS missing_pieces_count,
+    NULL AS missing_pieces_note,
+    NULL AS barcode_arsl,
+    NULL AS high_density_storage_id,
+    NULL AS num_of_renew,
+    items.data#>>'{metadata,createdByUsername}' AS created_by,
+    (items.data#>>'{metadata,createdDate}')::timestamp with time zone AS date_created,
+    items.data#>>'{metadata,updatedByUsername}' AS updated_by,
+    (items.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated,
+    NULL AS unique_id_prefix,
+    NULL AS org_due_date_time,
+    items.volume AS volume_number
+FROM
+    inventory_items items
+    JOIN inventory_holdings holdings ON holdings.id = items.holdings_record_id
+    LEFT JOIN inventory_locations AS locations ON items.effective_location_id = locations.id;
 
 /*ItemNote*/
 TRUNCATE TABLE local_ole.ole_ds_item_note_t CASCADE;
 INSERT INTO local_ole.ole_ds_item_note_t
 SELECT
-NULL AS item_note_id,
-NULL AS item_id,
-NULL AS type,
-NULL AS note,
-NULL AS date_updated
-LIMIT 0;
+    NULL AS item_note_id,
+    CAST( items.hrid AS integer ) AS item_id,
+    CASE WHEN (notes.data#>>'{staffOnly}')::boolean
+        THEN 'nonPublic' 
+        ELSE 'Public'
+    END AS type,
+    json_extract_path_text(notes.data, 'note') AS note,
+    NULL AS date_updated
+FROM
+    inventory_items AS items
+    CROSS JOIN json_array_elements(json_extract_path(data, 'notes')) AS notes (data);
 
 /*ItemHolding*/
 TRUNCATE TABLE local_ole.ole_ds_item_holdings_t CASCADE;
