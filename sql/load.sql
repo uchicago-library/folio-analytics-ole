@@ -813,16 +813,32 @@ LIMIT 0;
 
 /*RequestType*/
 TRUNCATE TABLE local_ole.ole_dlvr_rqst_typ_t CASCADE;
+/*
+ * strategy: since there are so few Request Types, explicitly
+ * enumerate.
+ * FOLIO stores the req type_ as_ a string, must look up code
+ * from this table.
+ *
+ * We will see if this is less complicated than generating MD5...
+ */
+WITH rqst_types(rqst_type, rqst_id) AS (
+    VALUES
+        ('Hold', '1'),
+        ('Recall', '2'),
+        ('Page', '3')
+)
 INSERT INTO local_ole.ole_dlvr_rqst_typ_t
 SELECT
-NULL AS ole_rqst_typ_id,
-NULL AS ole_rqst_typ_cd,
-NULL AS ole_rqst_typ_nm,
-NULL AS row_act_ind,
-NULL AS obj_id,
-1.0 AS ver_nbr,
-NULL AS ole_rqst_typ_desc
-LIMIT 0;
+    --local_ole.uuid_to_ole_id_str(md5(req_type)) AS ole_rqst_typ_id,
+    rqst_id AS ole_rqst_typ_id,
+    rqst_type AS ole_rqst_typ_cd,
+    rqst_type AS ole_rqst_typ_nm,
+    'Y' AS row_act_ind,
+    --local_ole.uuid_to_ole_id_str(md5(req_type)) AS obj_id,
+    rqst_id AS obj_id,
+    1.0 AS ver_nbr,
+    rqst_type AS ole_rqst_typ_desc
+FROM rqst_types;
 
 /*PastRequest*/
 TRUNCATE TABLE local_ole.ole_dlvr_rqst_hstry_rec_t CASCADE;
