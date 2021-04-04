@@ -869,12 +869,12 @@ SELECT
     circ_req.id AS obj_id,
     1.0 AS ver_nbr,
     NULL AS po_ln_itm_no,
-    NULL AS itm_id,
-    NULL AS ole_ptrn_id,
-    NULL AS ole_ptrn_barcd,
+    circ_req.data#>'{item, barcode}' AS itm_id,
+    circ_req.requester_id AS ole_ptrn_id,
+    circ_req.data#>'{requester, barcode}' AS ole_ptrn_barcd,
     NULL AS proxy_ptrn_id,
     NULL AS proxy_ptrn_barcd,
-    NULL AS ole_rqst_typ_id,
+    rqst_typ.ole_rqst_typ_id AS ole_rqst_typ_id,
     NULL AS cntnt_desc,
     circ_req.request_expiration_date AS rqst_expir_dt_time,
     NULL AS rcal_ntc_snt_dt,
@@ -898,7 +898,9 @@ SELECT
     NULL AS rqst_note,
     NULL AS uc_bib_id,
     NULL AS uc_item_id
-FROM circulation_requests circ_req;
+FROM circulation_requests circ_req
+	JOIN local_ole.ole_dlvr_rqst_typ_t rqst_typ
+		ON ole_rqst_typ_cd = circ_req.request_type;
 
 /*TemporaryLoan*/
 TRUNCATE TABLE local_ole.ole_dlvr_temp_circ_record CASCADE;
