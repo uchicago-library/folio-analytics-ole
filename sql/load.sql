@@ -814,8 +814,9 @@ LIMIT 0;
 /*RequestType*/
 TRUNCATE TABLE local_ole.ole_dlvr_rqst_typ_t CASCADE;
 /*
- * strategy: since there are so few Request Types, explicitly
- * enumerate.
+ * strategy: since there are so few Request Types, and because Pull List
+ * hard-codes request type by ID, explicitly enumerate request types
+ * and mapping to request type IDs.
  * FOLIO stores the req type_ as_ a string, must look up code
  * from this table.
  *
@@ -823,18 +824,16 @@ TRUNCATE TABLE local_ole.ole_dlvr_rqst_typ_t CASCADE;
  */
 WITH rqst_types(rqst_type, rqst_id) AS (
     VALUES
-        ('Hold', '1'),
         ('Recall', '2'),
-        ('Page', '3')
+        ('Hold', '4'),
+        ('Page', '6')
 )
 INSERT INTO local_ole.ole_dlvr_rqst_typ_t
 SELECT
-    --local_ole.uuid_to_ole_id_str(md5(req_type)) AS ole_rqst_typ_id,
     rqst_id AS ole_rqst_typ_id,
     rqst_type AS ole_rqst_typ_cd,
     rqst_type AS ole_rqst_typ_nm,
     'Y' AS row_act_ind,
-    --local_ole.uuid_to_ole_id_str(md5(req_type)) AS obj_id,
     rqst_id AS obj_id,
     1.0 AS ver_nbr,
     rqst_type AS ole_rqst_typ_desc
