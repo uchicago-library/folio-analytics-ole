@@ -1003,8 +1003,9 @@ WITH return_hist(id, item_id) AS (
     SELECT
         data#>>'{loan, id}' AS id,
         data#>>'{loan, itemId}' AS item_id,
-        (data#>>'{loan, systemReturnDate}')::timestamp AS item_returned_dt,
-        data#>>'{loan, itemStatus}' AS returned_item_status
+        (data#>>'{loan, systemReturnDate}')::timestamp with time zone AS item_returned_dt,
+        upper(data#>>'{loan, itemStatus}') AS returned_item_status,
+        data#>>'{loan, metadata, updatedByUserId}' AS operator
     FROM circulation_loan_history
     WHERE data#>>'{loan, action}' = 'checkedin'
 )
@@ -1014,7 +1015,8 @@ SELECT
     item.barcode AS item_barcode,
     return_hist.item_id AS item_uuid,
     return_hist.item_returned_dt,
-    NULL AS operator,
+    /* operator JOINs on krim_prncpl_t.PRNCPL_ID, should be same as user_users.id */
+    return_hist.operator AS operator,
     NULL AS cir_desk_loc,
     NULL AS cir_desk_route_to,
     1.0 AS ver_nbr,
