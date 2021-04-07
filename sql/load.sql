@@ -999,23 +999,6 @@ LIMIT 0;
 
 /*Return*/
 TRUNCATE TABLE local_ole.ole_return_history_t CASCADE;
-INSERT INTO local_ole.ole_return_history_t
-SELECT
-NULL AS id,
-NULL AS item_barcode,
-NULL AS item_uuid,
-NULL AS item_returned_dt,
-NULL AS operator,
-NULL AS cir_desk_loc,
-NULL AS cir_desk_route_to,
-1.0 AS ver_nbr,
-NULL AS obj_id,
-NULL AS returned_item_status,
-NULL AS uc_item_id
-LIMIT 0;
-
-/*RecentReturn*/
-TRUNCATE TABLE local_ole.ole_dlvr_recently_returned_t CASCADE;
 WITH return_hist(id, item_id) AS (
     SELECT
         data#>>'{loan, id}' AS id,
@@ -1040,6 +1023,16 @@ SELECT
     item.hrid::integer AS uc_item_id
 FROM return_hist
     LEFT JOIN inventory_items AS item ON return_hist.item_id = item.id;
+
+/*RecentReturn*/
+TRUNCATE TABLE local_ole.ole_dlvr_recently_returned_t CASCADE;
+INSERT INTO local_ole.ole_dlvr_recently_returned_t
+SELECT
+NULL AS id,
+NULL AS circ_desk_id,
+NULL AS item_uuid,
+NULL AS uc_item_id
+LIMIT 0;
 
 /*FeeType*/
 TRUNCATE TABLE local_ole.ole_dlvr_ptrn_fee_type_t CASCADE;
