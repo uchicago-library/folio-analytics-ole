@@ -559,17 +559,18 @@ LEFT JOIN public.inventory_instance_statuses iis
        ON iis.id = ii.status_id;
 
 /*BibInfo*/
+/* ~15 minutes */
 TRUNCATE TABLE local_ole.ole_ds_bib_info_t CASCADE;
 INSERT INTO local_ole.ole_ds_bib_info_t
 SELECT
-NULL AS bib_id_str,
-NULL AS bib_id,
-NULL AS title,
-NULL AS author,
-NULL AS publisher,
-NULL AS isxn,
-NULL AS date_updated
-LIMIT 0;
+    'wbm-'||hrid AS bib_id_str, /* using OLE nomenclature, could use UUIDs */
+    hrid::int AS bib_id,
+    title AS title,
+    data#>>'{contributors, 0, name}' AS author,
+    data#>>'{publication, 0, publisher}' AS publisher,
+    NULL AS isxn,
+    (data#>>'{metadata, updatedDate}')::timestamp AS date_updated
+FROM inventory_instances;
 
 /*Holding*/
 TRUNCATE TABLE local_ole.ole_ds_holdings_t CASCADE;
