@@ -559,17 +559,18 @@ LEFT JOIN public.inventory_instance_statuses iis
        ON iis.id = ii.status_id;
 
 /*BibInfo*/
+/* ~15 minutes */
 TRUNCATE TABLE local_ole.ole_ds_bib_info_t CASCADE;
 INSERT INTO local_ole.ole_ds_bib_info_t
 SELECT
-NULL AS bib_id_str,
-NULL AS bib_id,
-NULL AS title,
-NULL AS author,
-NULL AS publisher,
-NULL AS isxn,
-NULL AS date_updated
-LIMIT 0;
+    'wbm-'||hrid AS bib_id_str, /* using OLE nomenclature, could use UUIDs */
+    hrid::int AS bib_id,
+    title AS title,
+    data#>>'{contributors, 0, name}' AS author,
+    data#>>'{publication, 0, publisher}' AS publisher,
+    NULL AS isxn,
+    (data#>>'{metadata, updatedDate}')::timestamp AS date_updated
+FROM inventory_instances;
 
 /*Holding*/
 TRUNCATE TABLE local_ole.ole_ds_holdings_t CASCADE;
@@ -999,29 +1000,13 @@ LIMIT 0;
 
 /*Return*/
 TRUNCATE TABLE local_ole.ole_return_history_t CASCADE;
-INSERT INTO local_ole.ole_return_history_t
-SELECT
-NULL AS id,
-NULL AS item_barcode,
-NULL AS item_uuid,
-NULL AS item_returned_dt,
-NULL AS operator,
-NULL AS cir_desk_loc,
-NULL AS cir_desk_route_to,
-1.0 AS ver_nbr,
-NULL AS obj_id,
-NULL AS returned_item_status,
-NULL AS uc_item_id
-LIMIT 0;
-
-/*RecentReturn*/
-TRUNCATE TABLE local_ole.ole_dlvr_recently_returned_t CASCADE;
 WITH return_hist(id, item_id) AS (
     SELECT
         data#>>'{loan, id}' AS id,
         data#>>'{loan, itemId}' AS item_id,
-        (data#>>'{loan, systemReturnDate}')::timestamp AS item_returned_dt,
-        data#>>'{loan, itemStatus}' AS returned_item_status
+        (data#>>'{loan, systemReturnDate}')::timestamp with time zone AS item_returned_dt,
+        upper(data#>>'{loan, itemStatus}') AS returned_item_status,
+        data#>>'{loan, metadata, updatedByUserId}' AS operator
     FROM circulation_loan_history
     WHERE data#>>'{loan, action}' = 'checkedin'
 )
@@ -1031,7 +1016,8 @@ SELECT
     item.barcode AS item_barcode,
     return_hist.item_id AS item_uuid,
     return_hist.item_returned_dt,
-    NULL AS operator,
+    /* operator JOINs on krim_prncpl_t.PRNCPL_ID, should be same as user_users.id */
+    return_hist.operator AS operator,
     NULL AS cir_desk_loc,
     NULL AS cir_desk_route_to,
     1.0 AS ver_nbr,
@@ -1040,6 +1026,16 @@ SELECT
     item.hrid::integer AS uc_item_id
 FROM return_hist
     LEFT JOIN inventory_items AS item ON return_hist.item_id = item.id;
+
+/*RecentReturn*/
+TRUNCATE TABLE local_ole.ole_dlvr_recently_returned_t CASCADE;
+INSERT INTO local_ole.ole_dlvr_recently_returned_t
+SELECT
+NULL AS id,
+NULL AS circ_desk_id,
+NULL AS item_uuid,
+NULL AS uc_item_id
+LIMIT 0;
 
 /*FeeType*/
 TRUNCATE TABLE local_ole.ole_dlvr_ptrn_fee_type_t CASCADE;
