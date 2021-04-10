@@ -530,7 +530,7 @@ SELECT
     local_ole.uuid_to_ole_id_str(id) AS locn_id,
     id AS obj_id,
     1.0 AS ver_nbr,
-    code AS locn_cd,
+    replace(code, 'UC/HP/', 'UC/') AS locn_cd,
     description AS locn_name,
     '5' AS level_id,
     NULL AS parent_locn_id,
