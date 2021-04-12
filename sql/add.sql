@@ -1227,6 +1227,7 @@ CREATE INDEX ole_dlvr_add_t_add_valid_from ON local_ole.ole_dlvr_add_t(add_valid
 CREATE INDEX ole_ptrn_nte_t_actv_ind ON local_ole.ole_ptrn_nte_t(actv_ind);
 CREATE INDEX ole_ptrn_nte_t_nte_crt_or_updt_date ON local_ole.ole_ptrn_nte_t(nte_crt_or_updt_date DESC);
 CREATE INDEX uc_entity_ext_last_write_time ON local_ole.uc_entity_ext(last_write_time DESC);
+CREATE INDEX uc_entity_ext_student_id_idx ON local_ole.uc_entity_ext USING btree (student_id);
 CREATE INDEX krim_prncpl_t_prncpl_nm ON local_ole.krim_prncpl_t(prncpl_nm);
 CREATE INDEX krim_prncpl_t_actv_ind ON local_ole.krim_prncpl_t(actv_ind);
 CREATE INDEX krim_prncpl_t_last_updt_dt ON local_ole.krim_prncpl_t(last_updt_dt DESC);
