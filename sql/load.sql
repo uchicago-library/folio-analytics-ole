@@ -1000,32 +1000,23 @@ LIMIT 0;
 
 /*Return*/
 TRUNCATE TABLE local_ole.ole_return_history_t CASCADE;
-WITH return_hist(id, item_id) AS (
-    SELECT
-        data#>>'{loan, id}' AS id,
-        data#>>'{loan, itemId}' AS item_id,
-        (data#>>'{loan, systemReturnDate}')::timestamp with time zone AS item_returned_dt,
-        upper(data#>>'{loan, itemStatus}') AS returned_item_status,
-        data#>>'{loan, metadata, updatedByUserId}' AS operator
-    FROM circulation_loan_history
-    WHERE data#>>'{loan, action}' = 'checkedin'
-)
 INSERT INTO local_ole.ole_return_history_t
 SELECT
-    return_hist.id AS id,
+    check_ins.id AS id,
     item.barcode AS item_barcode,
-    return_hist.item_id AS item_uuid,
-    return_hist.item_returned_dt,
+    check_ins.item_id AS item_uuid,
+    check_ins.occurred_date_time,
     /* operator JOINs on krim_prncpl_t.PRNCPL_ID, should be same as user_users.id */
-    return_hist.operator AS operator,
-    NULL AS cir_desk_loc,
+    check_ins.performed_by_user_id AS operator,
+    svc_pts.code AS cir_desk_loc,
     NULL AS cir_desk_route_to,
     1.0 AS ver_nbr,
-    NULL AS obj_id,
-    return_hist.returned_item_status,
+    check_ins.id AS obj_id,
+    upper(item.data#>>'{status, name}') AS returned_item_status,
     item.hrid::integer AS uc_item_id
-FROM return_hist
-    LEFT JOIN inventory_items AS item ON return_hist.item_id = item.id;
+FROM circulation_check_ins check_ins
+    LEFT JOIN inventory_items AS item ON check_ins.item_id = item.id
+    LEFT JOIN inventory_service_points AS svc_pts ON check_ins.service_point_id = svc_pts.id;
 
 /*RecentReturn*/
 TRUNCATE TABLE local_ole.ole_dlvr_recently_returned_t CASCADE;
