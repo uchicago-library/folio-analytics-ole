@@ -865,7 +865,7 @@ LIMIT 0;
 TRUNCATE TABLE local_ole.ole_dlvr_rqst_t CASCADE;
 INSERT INTO local_ole.ole_dlvr_rqst_t
 SELECT
-    local_ole.uuid_to_ole_id_str(md5(circ_req.id)) AS ole_rqst_id,
+    circ_req.id AS ole_rqst_id,
     circ_req.id AS obj_id,
     1.0 AS ver_nbr,
     NULL AS po_ln_itm_no,
