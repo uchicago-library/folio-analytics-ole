@@ -728,7 +728,7 @@ SELECT
     (items.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated,
     NULL AS unique_id_prefix,
     NULL AS org_due_date_time,
-    items.volume AS volume_number
+    NULL AS volume_number
 FROM
     inventory_items items
     JOIN inventory_holdings holdings ON holdings.id = items.holdings_record_id
