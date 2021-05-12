@@ -496,7 +496,7 @@ WITH item_stats(stat) AS (
 )
 INSERT INTO local_ole.ole_dlvr_item_avail_stat_t 
 SELECT 
-    local_ole.uuid_to_ole_id_str(md5(stat)) AS item_avail_stat_id,
+    md5(stat) AS item_avail_stat_id,
     stat AS obj_id,
     1.0 AS ver_nbr,
     stat AS item_avail_stat_cd,
@@ -512,7 +512,7 @@ TRUNCATE TABLE local_ole.ole_cat_itm_typ_t CASCADE;
  */
 INSERT INTO local_ole.ole_cat_itm_typ_t
 SELECT
-  local_ole.uuid_to_ole_id_str(loan_types.id) AS itm_typ_cd_id,
+  loan_types.id AS itm_typ_cd_id,
   loan_types.name AS itm_typ_cd,
   loan_types.name AS itm_typ_nm,
   NULL AS itm_typ_desc,
@@ -675,7 +675,7 @@ FROM
     CROSS JOIN json_array_elements(json_extract_path(data, 'notes')) AS notes (data);
 
 /*Item*/
-/* about 20 min. */
+/* about 15 min. */
 TRUNCATE TABLE local_ole.ole_ds_item_t CASCADE;
 INSERT INTO local_ole.ole_ds_item_t
 SELECT
@@ -685,9 +685,9 @@ SELECT
     NULL AS fast_add,
     (CASE WHEN items.discovery_suppress THEN 'Y' ELSE 'N' END) AS staff_only,
     NULL AS uri,
-    local_ole.hex_to_int(substring(items.permanent_loan_type_id FOR 8))::int AS item_type_id,
-    local_ole.hex_to_int(substring(items.temporary_loan_type_id FOR 8))::int AS temp_item_type_id,
-    local_ole.uuid_to_ole_id_int(md5(items.data#>>'{status,name}')) AS item_status_id,
+    items.permanent_loan_type_id AS item_type_id,
+    items.temporary_loan_type_id AS temp_item_type_id,
+    md5(items.data#>>'{status,name}') AS item_status_id,
     (items.data#>>'{status,date}')::timestamp AS item_status_date_updated,
     local_ole.uuid_to_ole_id_int(items.permanent_location_id) AS location_id,
     locations.name AS location,
