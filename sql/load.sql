@@ -539,6 +539,7 @@ SELECT
 FROM inventory_locations;
 
 /*Bib*/
+/* ~17 minutes */
 TRUNCATE TABLE local_ole.ole_ds_bib_t CASCADE;
 INSERT INTO local_ole.ole_ds_bib_t
 SELECT 
@@ -574,6 +575,7 @@ SELECT
 FROM inventory_instances;
 
 /*Holding*/
+/* ~15 minutes */
 TRUNCATE TABLE local_ole.ole_ds_holdings_t CASCADE;
 INSERT INTO local_ole.ole_ds_holdings_t
 SELECT
@@ -675,7 +677,7 @@ FROM
     CROSS JOIN json_array_elements(json_extract_path(data, 'notes')) AS notes (data);
 
 /*Item*/
-/* about 15 min. */
+/* ~15 minutes */
 TRUNCATE TABLE local_ole.ole_ds_item_t CASCADE;
 INSERT INTO local_ole.ole_ds_item_t
 SELECT
