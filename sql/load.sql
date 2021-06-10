@@ -1,7 +1,7 @@
 /*
- * FunctionS to convert FOLIO UUIDs to OLE IDs, both as VARCHAR AND INT
+ * Functions to convert FOLIO UUIDs to OLE IDs, both as VARCHAR AND INT
  */
-DROP FUNCTION local_ole.uuid_to_ole_id_str;
+DROP FUNCTION IF EXISTS local_ole.uuid_to_ole_id_str;
 CREATE OR REPLACE FUNCTION local_ole.uuid_to_ole_id_str(hexval varchar) RETURNS varchar(40) AS $$
 DECLARE
    result   varchar(40);
@@ -12,7 +12,7 @@ END;
 $$
 LANGUAGE 'plpgsql' IMMUTABLE STRICT;
 
-DROP FUNCTION local_ole.uuid_to_ole_id_int;
+DROP FUNCTION IF EXISTS local_ole.uuid_to_ole_id_int;
 CREATE OR REPLACE FUNCTION local_ole.uuid_to_ole_id_int(hexval varchar) RETURNS integer AS $$
 DECLARE
    result   integer;
