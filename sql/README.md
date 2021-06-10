@@ -25,10 +25,16 @@ all the derived tables in the `local_ole` schema.
 ```
 rebuild.sh [-U <pg_user>] [-h <pg_host>] [-p <pg_port>] \
   -g <path to folio-analytics-ole repo working directory> \
-  [-b branch] [<pg_database>]
+  [-b branch] \
+  [-r <role to grant access to local_ole schema and tables>] \
+  [<pg_database>]
 ```
 
 `-g <path to folio-analytics-ole repo working directory>` must be specified
+
+`-r <role>` can be repeated to grant access to multiple roles
+
+`<pg_user>` must be able to create tables and grant access to the local_ole schema
 
 Defaults:
 * `<pg_user>`     : `postgres`

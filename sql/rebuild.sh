@@ -7,9 +7,16 @@ usage() {
 Usage:
 rebuild.sh [-U <pg_user>] [-h <pg_host>] [-p <pg_port>] \\
   -g <path to folio-analytics-ole repo working directory> \\
-  [-b branch] [<pg_database>]
+  [-b branch] \\
+  [-r <role to grant access to local_ole schema and tables>] \\
+  [<pg_database>]
 
--g <path to folio-analytics-ole repo working directory> must be specified
+-d <path to folio-analytics-ole repo working directory> must be specified
+
+-r <role> can be repeated to grant access to multiple roles
+
+<pg_user> must be able to create tables and grant access to the
+local_ole schema
 
 Defaults:
    <pg_user>     : postgres
@@ -22,7 +29,7 @@ For scripting, put user/host/port/database combination in .pgpass
 EOF
 }
 
-while getopts ":U:h:p:g:b:" opt; do
+while getopts ":U:h:p:g:b:r:" opt; do
     case ${opt} in
         U )
             user=$OPTARG
@@ -38,6 +45,13 @@ while getopts ":U:h:p:g:b:" opt; do
             ;;
         b )
             branch=$OPTARG
+            ;;
+        r )
+            if [ -z "$ole_role" ]; then
+                ole_role=$OPTARG
+            else
+                ole_role="$ole_role $OPTARG"
+            fi
             ;;
         : )
             echo "$OPTARG requires an argument" >&2
@@ -74,6 +88,13 @@ fi
 
 git pull
 
-for sql in "remove.sql" "add.sql" "load.sql" "grant.sql"; do
-    "$psql_cmd -f $sql $database"
+for sql in "remove.sql" "add.sql" "load.sql"; do
+    $psql_cmd -f $sql $database
+done
+
+for role in $ole_role; do
+    $psql_cmd $database <<EOF
+GRANT USAGE ON local_ole TO uchicago_ole;
+GRANT SELECT ON ALL TABLES IN SCHEMA local_ole TO $role;
+EOF
 done
