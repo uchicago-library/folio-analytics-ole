@@ -571,7 +571,7 @@ CREATE TABLE local_ole.ole_ds_item_note_t (
     item_id INT,
     type VARCHAR(50),
     note TEXT,
-    date_updated TIMESTAMP
+    date_updated TIMESTAMP,
     CONSTRAINT PK_ole_ds_item_note_t PRIMARY KEY(item_note_id)
 );
 
