@@ -94,7 +94,7 @@ done
 
 for role in $ole_role; do
     $psql_cmd $database <<EOF
-GRANT USAGE ON local_ole TO uchicago_ole;
+GRANT USAGE ON SCHEMA local_ole TO $role;
 GRANT SELECT ON ALL TABLES IN SCHEMA local_ole TO $role;
 EOF
 done
