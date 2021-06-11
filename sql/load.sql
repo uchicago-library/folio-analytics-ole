@@ -745,29 +745,29 @@ LIMIT 0;
 TRUNCATE TABLE local_ole.ole_crcl_dsk_t CASCADE;
 INSERT INTO local_ole.ole_crcl_dsk_t
 SELECT
-NULL AS ole_crcl_dsk_code,
-NULL AS ole_crcl_dsk_pub_name,
-NULL AS ole_crcl_dsk_staff_name,
-NULL AS actv_ind,
-NULL AS pk_up_locn_ind,
-NULL AS asr_pk_up_locn_ind,
-NULL AS hld_days,
-NULL AS slvng_lag_tim,
-NULL AS prnt_slp_ind,
-NULL AS ole_crcl_dsk_id,
-NULL AS ole_clndr_grp_id,
-NULL AS hold_format,
-NULL AS hold_queue,
-NULL AS reply_to_email,
-NULL AS rqst_expirtin_days,
-NULL AS staffed,
-NULL AS renew_lost_itm,
-NULL AS show_onhold_itm,
-NULL AS dflt_rqst_typ_id,
-NULL AS dflt_pick_up_locn_id,
-NULL AS from_email,
-NULL AS uc_obj_id
-LIMIT 0;
+    code AS ole_crcl_dsk_code,
+    discovery_display_name AS ole_crcl_dsk_pub_name,
+    "name" AS ole_crcl_dsk_staff_name,
+    'Y' AS actv_ind,
+    CASE WHEN pickup_location THEN 'Y' ELSE 'N' END AS pk_up_locn_ind,
+    CASE WHEN code = 'ITS' OR code = 'POLSKY' THEN 'N' ELSE 'Y' END AS asr_pk_up_locn_ind,
+    ("data"#>>'{holdShelfExpiryPeriod, duration}')::int AS hld_days,
+    NULL AS slvng_lag_tim,
+    'Y' AS prnt_slp_ind,
+    id AS ole_crcl_dsk_id,
+    NULL AS ole_clndr_grp_id,
+    NULL AS hold_format,
+    CASE WHEN code = 'API' THEN 'N' ELSE 'Y' END AS hold_queue,
+    NULL AS reply_to_email,
+    NULL AS rqst_expirtin_days,
+    NULL AS staffed,
+    NULL AS renew_lost_itm,
+    NULL AS show_onhold_itm,
+    NULL AS dflt_rqst_typ_id,
+    NULL AS dflt_pick_up_locn_id,
+    NULL AS from_email,
+    id AS uc_obj_id
+FROM public.inventory_service_points;
 
 /*DeskLocation*/
 TRUNCATE TABLE local_ole.ole_crcl_dsk_locn_t CASCADE;
