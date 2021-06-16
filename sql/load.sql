@@ -450,7 +450,7 @@ LIMIT 0;
 TRUNCATE TABLE local_ole.ole_cat_shvlg_schm_t CASCADE;
 INSERT INTO local_ole.ole_cat_shvlg_schm_t
 SELECT
-    local_ole.uuid_to_ole_id_int(id) AS shvlg_schm_id,
+    id::uuid AS shvlg_schm_id,
     id AS obj_id,
     1.0 AS ver_nbr,
     substring(name FOR 40) AS shvlg_schm_cd,
@@ -575,7 +575,7 @@ SELECT
 FROM inventory_instances;
 
 /*Holding*/
-/* ~15 minutes */
+/* ~10 minutes */
 TRUNCATE TABLE local_ole.ole_ds_holdings_t CASCADE;
 INSERT INTO local_ole.ole_ds_holdings_t
 SELECT
@@ -587,7 +587,7 @@ SELECT
 	NULL AS location_id,
 	holdings_permanent_location.name AS location,
 	NULL AS location_level,
-    local_ole.uuid_to_ole_id_int(call_number_type_id) AS call_number_type_id,
+    call_number_type_id::uuid AS call_number_type_id,
 	holdings.call_number_prefix AS call_number_prefix,
 	holdings.call_number AS call_number,
 	NULL AS shelving_order,
@@ -672,7 +672,7 @@ SELECT
     local_ole.uuid_to_ole_id_int(items.permanent_location_id) AS location_id,
     locations.name AS location,
     NULL AS location_level,
-    local_ole.uuid_to_ole_id_int(item_level_call_number_type_id) AS call_number_type_id,
+    call_number_type_id::uuid AS call_number_type_id,
     item_level_call_number_prefix AS call_number_prefix,
     item_level_call_number AS call_number,
     NULL AS shelving_order,

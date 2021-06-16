@@ -356,16 +356,10 @@ CREATE TABLE local_ole.krim_role_mbr_t (
 
 /*CallNumberType*/
 /*
- * Changed shvlg_schm_id to INT from DECIMAL(8,0).
- * DECIMAL(8,0) was too limiting for generating the shvlg_schm_id from FOLIO UUID,
- * change to INT hopefully will not cause problems.
- *
- * Fallback approaches would be to
- * (a) generate shvlg_schm_id from fewer bytes of the UUID, or
- * (b) hard-code IDs and translation somehow, from text field? FOLIO UUIDs?
+ * Changed shvlg_schm_id to UUID from DECIMAL(8,0), so we can use native FOLIO IDs.
  */
 CREATE TABLE local_ole.ole_cat_shvlg_schm_t (
-    shvlg_schm_id INT NOT NULL,
+    shvlg_schm_id UUID NOT NULL,
     obj_id VARCHAR(36) NOT NULL,
     ver_nbr DECIMAL(8,0) NOT NULL,
     shvlg_schm_cd VARCHAR(40),
@@ -457,7 +451,7 @@ CREATE TABLE local_ole.ole_ds_holdings_t (
     location_id INT,
     location VARCHAR(300),
     location_level VARCHAR(300),
-    call_number_type_id INT,
+    call_number_type_id UUID,
     call_number_prefix VARCHAR(100),
     call_number VARCHAR(300),
     shelving_order VARCHAR(300),
@@ -525,7 +519,7 @@ CREATE TABLE local_ole.ole_ds_item_t (
     location_id INT,
     location VARCHAR(600),
     location_level VARCHAR(600),
-    call_number_type_id INT,
+    call_number_type_id UUID,
     call_number_prefix VARCHAR(40),
     call_number VARCHAR(100),
     shelving_order VARCHAR(300),
