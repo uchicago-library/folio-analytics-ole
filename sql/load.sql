@@ -741,6 +741,34 @@ NULL AS item_id,
 NULL AS date_updated
 LIMIT 0;
 
+/*RequestType*/
+TRUNCATE TABLE local_ole.ole_dlvr_rqst_typ_t CASCADE;
+/*
+ * strategy: since there are so few Request Types, and because Pull List
+ * hard-codes request type by ID, explicitly enumerate request types
+ * and mapping to request type IDs.
+ * FOLIO stores the req type_ as_ a string, must look up code
+ * from this table.
+ *
+ * We will see if this is less complicated than generating MD5...
+ */
+WITH rqst_types(rqst_type, rqst_id) AS (
+    VALUES
+        ('Recall', '2'),
+        ('Hold', '4'),
+        ('Page', '6')
+)
+INSERT INTO local_ole.ole_dlvr_rqst_typ_t
+SELECT
+    rqst_id AS ole_rqst_typ_id,
+    rqst_type AS ole_rqst_typ_cd,
+    rqst_type AS ole_rqst_typ_nm,
+    'Y' AS row_act_ind,
+    rqst_id AS obj_id,
+    1.0 AS ver_nbr,
+    rqst_type AS ole_rqst_typ_desc
+FROM rqst_types;
+
 /*Desk*/
 TRUNCATE TABLE local_ole.ole_crcl_dsk_t CASCADE;
 INSERT INTO local_ole.ole_crcl_dsk_t
@@ -793,96 +821,6 @@ NULL AS obj_id,
 1.0 AS ver_nbr,
 NULL AS crcl_dsk_id
 LIMIT 0;
-
-/*RequestType*/
-TRUNCATE TABLE local_ole.ole_dlvr_rqst_typ_t CASCADE;
-/*
- * strategy: since there are so few Request Types, and because Pull List
- * hard-codes request type by ID, explicitly enumerate request types
- * and mapping to request type IDs.
- * FOLIO stores the req type_ as_ a string, must look up code
- * from this table.
- *
- * We will see if this is less complicated than generating MD5...
- */
-WITH rqst_types(rqst_type, rqst_id) AS (
-    VALUES
-        ('Recall', '2'),
-        ('Hold', '4'),
-        ('Page', '6')
-)
-INSERT INTO local_ole.ole_dlvr_rqst_typ_t
-SELECT
-    rqst_id AS ole_rqst_typ_id,
-    rqst_type AS ole_rqst_typ_cd,
-    rqst_type AS ole_rqst_typ_nm,
-    'Y' AS row_act_ind,
-    rqst_id AS obj_id,
-    1.0 AS ver_nbr,
-    rqst_type AS ole_rqst_typ_desc
-FROM rqst_types;
-
-/*PastRequest*/
-TRUNCATE TABLE local_ole.ole_dlvr_rqst_hstry_rec_t CASCADE;
-INSERT INTO local_ole.ole_dlvr_rqst_hstry_rec_t
-SELECT
-NULL AS ole_rqst_hstry_id,
-NULL AS ole_rqst_id,
-NULL AS ole_item_id,
-NULL AS ole_loan_id,
-NULL AS ole_ln_itm_num,
-NULL AS ole_rqst_typ_cd,
-NULL AS ole_pck_loc_cd,
-NULL AS ole_oprt_id,
-NULL AS ole_mach_id,
-NULL AS arch_dt_time,
-NULL AS obj_id,
-1.0 AS ver_nbr,
-NULL AS ole_req_outcome_status,
-NULL AS ole_ptrn_id,
-NULL AS crte_dt_time
-LIMIT 0;
-
-/*Request*/
-TRUNCATE TABLE local_ole.ole_dlvr_rqst_t CASCADE;
-INSERT INTO local_ole.ole_dlvr_rqst_t
-SELECT
-    circ_req.id AS ole_rqst_id,
-    circ_req.id AS obj_id,
-    1.0 AS ver_nbr,
-    NULL AS po_ln_itm_no,
-    circ_req.data#>'{item, barcode}' AS itm_id,
-    circ_req.requester_id AS ole_ptrn_id,
-    circ_req.data#>'{requester, barcode}' AS ole_ptrn_barcd,
-    NULL AS proxy_ptrn_id,
-    NULL AS proxy_ptrn_barcd,
-    rqst_typ.ole_rqst_typ_id AS ole_rqst_typ_id,
-    NULL AS cntnt_desc,
-    circ_req.request_expiration_date AS rqst_expir_dt_time,
-    NULL AS rcal_ntc_snt_dt,
-    NULL AS onhld_ntc_snt_dt,
-    circ_req.request_date AS crte_dt_time,
-    NULL AS modi_dt_time,
-    NULL AS cpy_frmt,
-    NULL AS loan_tran_id,
-    NULL AS pckup_loc_id,
-    NULL AS optr_crte_id,
-    NULL AS optr_modi_id,
-    NULL AS circ_loc_id,
-    NULL AS mach_id,
-    NULL AS ptrn_q_pos,
-    circ_req.item_id AS item_uuid,
-    NULL AS rqst_stat,
-    NULL AS asr_flag,
-    'Item Level' AS rqst_lvl,
-    NULL AS bib_id,
-    NULL AS hold_exp_date,
-    NULL AS rqst_note,
-    NULL AS uc_bib_id,
-    NULL AS uc_item_id
-FROM circulation_requests circ_req
-	JOIN local_ole.ole_dlvr_rqst_typ_t rqst_typ
-		ON ole_rqst_typ_cd = circ_req.request_type;
 
 /*TemporaryLoan*/
 TRUNCATE TABLE local_ole.ole_dlvr_temp_circ_record CASCADE;
@@ -947,39 +885,6 @@ SELECT
     (item.hrid)::integer AS uc_item_id
 FROM circulation_loan_history loan_hist
     LEFT JOIN inventory_items AS item ON loan_hist.data#>>'{loan, itemId}' = item.id;
-
-/*Loan*/
-TRUNCATE TABLE local_ole.ole_dlvr_loan_t CASCADE;
-INSERT INTO local_ole.ole_dlvr_loan_t
-SELECT
-NULL AS loan_tran_id,
-NULL AS cir_policy_id,
-NULL AS ole_ptrn_id,
-NULL AS itm_id,
-NULL AS ole_proxy_borrower_nm,
-NULL AS proxy_ptrn_id,
-NULL AS curr_due_dt_time,
-NULL AS past_due_dt_time,
-NULL AS crte_dt_time,
-NULL AS circ_loc_id,
-NULL AS optr_crte_id,
-NULL AS mach_id,
-NULL AS ovrr_optr_id,
-NULL AS num_renewals,
-NULL AS num_overdue_notices_sent,
-NULL AS n_overdue_notice,
-NULL AS overdue_notice_date,
-NULL AS ole_rqst_id,
-NULL AS repmnt_fee_ptrn_bill_id,
-NULL AS crtsy_ntce,
-NULL AS obj_id,
-1.0 AS ver_nbr,
-NULL AS item_uuid,
-NULL AS num_claims_rtrn_notices_sent,
-NULL AS claims_search_count,
-NULL AS last_claims_rtrn_search_dt,
-NULL AS uc_item_id
-LIMIT 0;
 
 /*Return*/
 TRUNCATE TABLE local_ole.ole_return_history_t CASCADE;
@@ -1116,3 +1021,98 @@ NULL AS trns_mode,
 NULL AS note
 LIMIT 0;
 
+
+/*Loan*/
+TRUNCATE TABLE local_ole.ole_dlvr_loan_t CASCADE;
+INSERT INTO local_ole.ole_dlvr_loan_t
+SELECT
+NULL AS loan_tran_id,
+NULL AS cir_policy_id,
+NULL AS ole_ptrn_id,
+NULL AS itm_id,
+NULL AS ole_proxy_borrower_nm,
+NULL AS proxy_ptrn_id,
+NULL AS curr_due_dt_time,
+NULL AS past_due_dt_time,
+NULL AS crte_dt_time,
+NULL AS circ_loc_id,
+NULL AS optr_crte_id,
+NULL AS mach_id,
+NULL AS ovrr_optr_id,
+NULL AS num_renewals,
+NULL AS num_overdue_notices_sent,
+NULL AS n_overdue_notice,
+NULL AS overdue_notice_date,
+NULL AS ole_rqst_id,
+NULL AS repmnt_fee_ptrn_bill_id,
+NULL AS crtsy_ntce,
+NULL AS obj_id,
+1.0 AS ver_nbr,
+NULL AS item_uuid,
+NULL AS num_claims_rtrn_notices_sent,
+NULL AS claims_search_count,
+NULL AS last_claims_rtrn_search_dt,
+NULL AS uc_item_id
+LIMIT 0;
+
+/*PastRequest*/
+TRUNCATE TABLE local_ole.ole_dlvr_rqst_hstry_rec_t CASCADE;
+INSERT INTO local_ole.ole_dlvr_rqst_hstry_rec_t
+SELECT
+NULL AS ole_rqst_hstry_id,
+NULL AS ole_rqst_id,
+NULL AS ole_item_id,
+NULL AS ole_loan_id,
+NULL AS ole_ln_itm_num,
+NULL AS ole_rqst_typ_cd,
+NULL AS ole_pck_loc_cd,
+NULL AS ole_oprt_id,
+NULL AS ole_mach_id,
+NULL AS arch_dt_time,
+NULL AS obj_id,
+1.0 AS ver_nbr,
+NULL AS ole_req_outcome_status,
+NULL AS ole_ptrn_id,
+NULL AS crte_dt_time
+LIMIT 0;
+
+/*Request*/
+TRUNCATE TABLE local_ole.ole_dlvr_rqst_t CASCADE;
+INSERT INTO local_ole.ole_dlvr_rqst_t
+SELECT
+    circ_req.id AS ole_rqst_id,
+    circ_req.id AS obj_id,
+    1.0 AS ver_nbr,
+    NULL AS po_ln_itm_no,
+    circ_req.data#>'{item, barcode}' AS itm_id,
+    circ_req.requester_id AS ole_ptrn_id,
+    circ_req.data#>'{requester, barcode}' AS ole_ptrn_barcd,
+    NULL AS proxy_ptrn_id,
+    NULL AS proxy_ptrn_barcd,
+    rqst_typ.ole_rqst_typ_id AS ole_rqst_typ_id,
+    NULL AS cntnt_desc,
+    circ_req.request_expiration_date AS rqst_expir_dt_time,
+    NULL AS rcal_ntc_snt_dt,
+    NULL AS onhld_ntc_snt_dt,
+    circ_req.request_date AS crte_dt_time,
+    NULL AS modi_dt_time,
+    NULL AS cpy_frmt,
+    NULL AS loan_tran_id,
+    NULL AS pckup_loc_id,
+    NULL AS optr_crte_id,
+    NULL AS optr_modi_id,
+    NULL AS circ_loc_id,
+    NULL AS mach_id,
+    NULL AS ptrn_q_pos,
+    circ_req.item_id AS item_uuid,
+    NULL AS rqst_stat,
+    NULL AS asr_flag,
+    'Item Level' AS rqst_lvl,
+    NULL AS bib_id,
+    NULL AS hold_exp_date,
+    NULL AS rqst_note,
+    NULL AS uc_bib_id,
+    NULL AS uc_item_id
+FROM circulation_requests circ_req
+    JOIN local_ole.ole_dlvr_rqst_typ_t rqst_typ
+        ON ole_rqst_typ_cd = circ_req.request_type;

@@ -578,6 +578,18 @@ CREATE TABLE local_ole.ole_ds_item_holdings_t (
     CONSTRAINT PK_ole_ds_item_holdings_t PRIMARY KEY(item_holdings_id)
 );
 
+/*RequestType*/
+CREATE TABLE local_ole.ole_dlvr_rqst_typ_t (
+    ole_rqst_typ_id VARCHAR(40) NOT NULL,
+    ole_rqst_typ_cd VARCHAR(80) NOT NULL,
+    ole_rqst_typ_nm VARCHAR(80) NOT NULL,
+    row_act_ind VARCHAR(1) NOT NULL,
+    obj_id VARCHAR(36) NOT NULL,
+    ver_nbr DECIMAL(8,0) NOT NULL,
+    ole_rqst_typ_desc VARCHAR(80),
+    CONSTRAINT PK_ole_dlvr_rqst_typ_t PRIMARY KEY(ole_rqst_typ_id)
+);
+
 /*Desk*/
 CREATE TABLE local_ole.ole_crcl_dsk_t (
     ole_crcl_dsk_code VARCHAR(40) NOT NULL,
@@ -626,76 +638,6 @@ CREATE TABLE local_ole.ole_circ_dsk_dtl_t (
     ver_nbr DECIMAL(8,0) NOT NULL,
     crcl_dsk_id VARCHAR(40),
     CONSTRAINT PK_ole_circ_dsk_dtl_t PRIMARY KEY(crcl_dsk_dtl_id)
-);
-
-/*RequestType*/
-CREATE TABLE local_ole.ole_dlvr_rqst_typ_t (
-    ole_rqst_typ_id VARCHAR(40) NOT NULL,
-    ole_rqst_typ_cd VARCHAR(80) NOT NULL,
-    ole_rqst_typ_nm VARCHAR(80) NOT NULL,
-    row_act_ind VARCHAR(1) NOT NULL,
-    obj_id VARCHAR(36) NOT NULL,
-    ver_nbr DECIMAL(8,0) NOT NULL,
-    ole_rqst_typ_desc VARCHAR(80),
-    CONSTRAINT PK_ole_dlvr_rqst_typ_t PRIMARY KEY(ole_rqst_typ_id)
-);
-
-/*PastRequest*/
-CREATE TABLE local_ole.ole_dlvr_rqst_hstry_rec_t (
-    ole_rqst_hstry_id VARCHAR(40) NOT NULL,
-    ole_rqst_id VARCHAR(40) NOT NULL,
-    ole_item_id VARCHAR(80) NOT NULL,
-    ole_loan_id VARCHAR(80),
-    ole_ln_itm_num VARCHAR(80),
-    ole_rqst_typ_cd VARCHAR(80) NOT NULL,
-    ole_pck_loc_cd VARCHAR(80),
-    ole_oprt_id VARCHAR(40) NOT NULL,
-    ole_mach_id VARCHAR(80),
-    arch_dt_time TIMESTAMP,
-    obj_id VARCHAR(36) NOT NULL,
-    ver_nbr DECIMAL(8,0) NOT NULL,
-    ole_req_outcome_status VARCHAR(80),
-    ole_ptrn_id VARCHAR(40),
-    crte_dt_time TIMESTAMP NOT NULL,
-    CONSTRAINT PK_ole_dlvr_rqst_hstry_rec_t PRIMARY KEY(ole_rqst_hstry_id)
-);
-
-/*Request*/
-CREATE TABLE local_ole.ole_dlvr_rqst_t (
-    ole_rqst_id VARCHAR(40) NOT NULL,
-    obj_id VARCHAR(36),
-    ver_nbr DECIMAL(8,0),
-    po_ln_itm_no VARCHAR(100),
-    itm_id VARCHAR(40),
-    ole_ptrn_id VARCHAR(40),
-    ole_ptrn_barcd VARCHAR(80),
-    proxy_ptrn_id VARCHAR(40),
-    proxy_ptrn_barcd VARCHAR(80),
-    ole_rqst_typ_id VARCHAR(40),
-    cntnt_desc TEXT,
-    rqst_expir_dt_time TIMESTAMP,
-    rcal_ntc_snt_dt TIMESTAMP,
-    onhld_ntc_snt_dt TIMESTAMP,
-    crte_dt_time TIMESTAMP NOT NULL,
-    modi_dt_time TIMESTAMP,
-    cpy_frmt VARCHAR(40),
-    loan_tran_id VARCHAR(40),
-    pckup_loc_id VARCHAR(40),
-    optr_crte_id VARCHAR(40),
-    optr_modi_id VARCHAR(40),
-    circ_loc_id VARCHAR(40),
-    mach_id VARCHAR(80),
-    ptrn_q_pos INT,
-    item_uuid VARCHAR(100) NOT NULL,
-    rqst_stat VARCHAR(10),
-    asr_flag VARCHAR(1),
-    rqst_lvl VARCHAR(40),
-    bib_id VARCHAR(40),
-    hold_exp_date TIMESTAMP,
-    rqst_note TEXT,
-    uc_bib_id INT,
-    uc_item_id INT,
-    CONSTRAINT PK_ole_dlvr_rqst_t PRIMARY KEY(ole_rqst_id)
 );
 
 /*TemporaryLoan*/
@@ -757,38 +699,6 @@ CREATE TABLE local_ole.ole_dlvr_circ_record (
     check_in_dt_time_ovr_rd TIMESTAMP,
     uc_item_id INT,
     CONSTRAINT PK_ole_dlvr_circ_record PRIMARY KEY(cir_his_rec_id)
-);
-
-/*Loan*/
-CREATE TABLE local_ole.ole_dlvr_loan_t (
-    loan_tran_id VARCHAR(40) NOT NULL,
-    cir_policy_id TEXT,
-    ole_ptrn_id VARCHAR(40) NOT NULL,
-    itm_id VARCHAR(40),
-    ole_proxy_borrower_nm VARCHAR(60),
-    proxy_ptrn_id VARCHAR(40),
-    curr_due_dt_time TIMESTAMP,
-    past_due_dt_time TIMESTAMP,
-    crte_dt_time TIMESTAMP NOT NULL,
-    circ_loc_id VARCHAR(40) NOT NULL,
-    optr_crte_id VARCHAR(40) NOT NULL,
-    mach_id VARCHAR(100),
-    ovrr_optr_id VARCHAR(40),
-    num_renewals VARCHAR(3),
-    num_overdue_notices_sent VARCHAR(3),
-    n_overdue_notice VARCHAR(3),
-    overdue_notice_date TIMESTAMP,
-    ole_rqst_id VARCHAR(40),
-    repmnt_fee_ptrn_bill_id VARCHAR(40),
-    crtsy_ntce VARCHAR(1),
-    obj_id VARCHAR(36) NOT NULL,
-    ver_nbr DECIMAL(8,0) NOT NULL,
-    item_uuid VARCHAR(100) NOT NULL,
-    num_claims_rtrn_notices_sent INT,
-    claims_search_count INT,
-    last_claims_rtrn_search_dt TIMESTAMP,
-    uc_item_id INT,
-    CONSTRAINT PK_ole_dlvr_loan_t PRIMARY KEY(loan_tran_id)
 );
 
 /*Return*/
@@ -914,6 +824,96 @@ CREATE TABLE local_ole.ole_dlvr_ptrn_bill_pay_t (
     trns_mode VARCHAR(40),
     note VARCHAR(500),
     CONSTRAINT PK_ole_dlvr_ptrn_bill_pay_t PRIMARY KEY(id)
+);
+
+/*Loan*/
+CREATE TABLE local_ole.ole_dlvr_loan_t (
+    loan_tran_id VARCHAR(40) NOT NULL,
+    cir_policy_id TEXT,
+    ole_ptrn_id VARCHAR(40) NOT NULL,
+    itm_id VARCHAR(40),
+    ole_proxy_borrower_nm VARCHAR(60),
+    proxy_ptrn_id VARCHAR(40),
+    curr_due_dt_time TIMESTAMP,
+    past_due_dt_time TIMESTAMP,
+    crte_dt_time TIMESTAMP NOT NULL,
+    circ_loc_id VARCHAR(40) NOT NULL,
+    optr_crte_id VARCHAR(40) NOT NULL,
+    mach_id VARCHAR(100),
+    ovrr_optr_id VARCHAR(40),
+    num_renewals VARCHAR(3),
+    num_overdue_notices_sent VARCHAR(3),
+    n_overdue_notice VARCHAR(3),
+    overdue_notice_date TIMESTAMP,
+    ole_rqst_id VARCHAR(40),
+    repmnt_fee_ptrn_bill_id VARCHAR(40),
+    crtsy_ntce VARCHAR(1),
+    obj_id VARCHAR(36) NOT NULL,
+    ver_nbr DECIMAL(8,0) NOT NULL,
+    item_uuid VARCHAR(100) NOT NULL,
+    num_claims_rtrn_notices_sent INT,
+    claims_search_count INT,
+    last_claims_rtrn_search_dt TIMESTAMP,
+    uc_item_id INT,
+    CONSTRAINT PK_ole_dlvr_loan_t PRIMARY KEY(loan_tran_id)
+);
+
+/*PastRequest*/
+CREATE TABLE local_ole.ole_dlvr_rqst_hstry_rec_t (
+    ole_rqst_hstry_id VARCHAR(40) NOT NULL,
+    ole_rqst_id VARCHAR(40) NOT NULL,
+    ole_item_id VARCHAR(80) NOT NULL,
+    ole_loan_id VARCHAR(80),
+    ole_ln_itm_num VARCHAR(80),
+    ole_rqst_typ_cd VARCHAR(80) NOT NULL,
+    ole_pck_loc_cd VARCHAR(80),
+    ole_oprt_id VARCHAR(40) NOT NULL,
+    ole_mach_id VARCHAR(80),
+    arch_dt_time TIMESTAMP,
+    obj_id VARCHAR(36) NOT NULL,
+    ver_nbr DECIMAL(8,0) NOT NULL,
+    ole_req_outcome_status VARCHAR(80),
+    ole_ptrn_id VARCHAR(40),
+    crte_dt_time TIMESTAMP NOT NULL,
+    CONSTRAINT PK_ole_dlvr_rqst_hstry_rec_t PRIMARY KEY(ole_rqst_hstry_id)
+);
+
+/*Request*/
+CREATE TABLE local_ole.ole_dlvr_rqst_t (
+    ole_rqst_id VARCHAR(40) NOT NULL,
+    obj_id VARCHAR(36),
+    ver_nbr DECIMAL(8,0),
+    po_ln_itm_no VARCHAR(100),
+    itm_id VARCHAR(40),
+    ole_ptrn_id VARCHAR(40),
+    ole_ptrn_barcd VARCHAR(80),
+    proxy_ptrn_id VARCHAR(40),
+    proxy_ptrn_barcd VARCHAR(80),
+    ole_rqst_typ_id VARCHAR(40),
+    cntnt_desc TEXT,
+    rqst_expir_dt_time TIMESTAMP,
+    rcal_ntc_snt_dt TIMESTAMP,
+    onhld_ntc_snt_dt TIMESTAMP,
+    crte_dt_time TIMESTAMP NOT NULL,
+    modi_dt_time TIMESTAMP,
+    cpy_frmt VARCHAR(40),
+    loan_tran_id VARCHAR(40),
+    pckup_loc_id VARCHAR(40),
+    optr_crte_id VARCHAR(40),
+    optr_modi_id VARCHAR(40),
+    circ_loc_id VARCHAR(40),
+    mach_id VARCHAR(80),
+    ptrn_q_pos INT,
+    item_uuid VARCHAR(100) NOT NULL,
+    rqst_stat VARCHAR(10),
+    asr_flag VARCHAR(1),
+    rqst_lvl VARCHAR(40),
+    bib_id VARCHAR(40),
+    hold_exp_date TIMESTAMP,
+    rqst_note TEXT,
+    uc_bib_id INT,
+    uc_item_id INT,
+    CONSTRAINT PK_ole_dlvr_rqst_t PRIMARY KEY(ole_rqst_id)
 );
 
 /*Person1*/
