@@ -675,7 +675,7 @@ SELECT
     call_number_type_id::uuid AS call_number_type_id,
     item_level_call_number_prefix AS call_number_prefix,
     item_level_call_number AS call_number,
-    NULL AS shelving_order,
+    items.effective_shelving_order AS shelving_order,
     enumeration AS enumeration,
     chronology AS chronology,
     items.copy_number AS copy_number,
