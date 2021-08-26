@@ -327,6 +327,19 @@ CREATE TABLE local_ole.uc_entity_ext (
     CONSTRAINT PK_uc_entity_ext PRIMARY KEY(id)
 );
 
+/*Proxy Patron*/
+CREATE TABLE local_ole.ole_proxy_ptrn_t (
+    ole_proxy_ptrn_id VARCHAR(40) NOT NULL,
+    obj_id varchar(40), 
+    ver_nbr DECIMAL(8,0), 
+    ole_ptrn_id VARCHAR(40),
+    ole_proxy_ptrn_ref_id VARCHAR(40) NOT NULL,  
+    ole_proxy_ptrn_exp_dt TIMESTAMP, 
+    ole_proxy_ptrn_act_dt TIMESTAMP,
+    actv_ind VARCHAR(1), 
+    CONSTRAINT PK_ole_proxy_ptrn_t PRIMARY KEY(ole_proxy_ptrn_id)
+);
+
 /*User*/
 CREATE TABLE local_ole.krim_prncpl_t (
     prncpl_id VARCHAR(40) NOT NULL,
@@ -988,6 +1001,7 @@ ALTER TABLE local_ole.ole_ptrn_t ADD CONSTRAINT FK_ole_ptrn_t_ole_dlvr_borr_typ_
 ALTER TABLE local_ole.ole_ptrn_t ADD CONSTRAINT FK_ole_ptrn_t_ole_dlvr_src_t_ole_src FOREIGN KEY(ole_src) REFERENCES local_ole.ole_dlvr_src_t(ole_dlvr_src_id);
 ALTER TABLE local_ole.ole_ptrn_t ADD CONSTRAINT FK_ole_ptrn_t_ole_dlvr_stat_cat_t_ole_stat_cat FOREIGN KEY(ole_stat_cat) REFERENCES local_ole.ole_dlvr_stat_cat_t(ole_dlvr_stat_cat_id);
 ALTER TABLE local_ole.ole_ptrn_local_id_t ADD CONSTRAINT FK_ole_ptrn_local_id_t_ole_ptrn_t_ole_ptrn_id FOREIGN KEY(ole_ptrn_id) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id);
+ALTER TABLE local_ole.ole_proxy_ptrn_t ADD CONSTRAINT FK_ole_proxy_ptrn_t_ole_ptrn_id FOREIGN KEY(ole_ptrn_id) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id) ON DELETE CASCADE;
 ALTER TABLE local_ole.ole_dlvr_add_t ADD CONSTRAINT FK_ole_dlvr_add_t_ole_ptrn_t_ole_ptrn_id FOREIGN KEY(ole_ptrn_id) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id);
 ALTER TABLE local_ole.ole_dlvr_add_t ADD CONSTRAINT FK_ole_dlvr_add_t_krim_entity_addr_t_entity_addr_id FOREIGN KEY(entity_addr_id) REFERENCES local_ole.krim_entity_addr_t(entity_addr_id) ON DELETE CASCADE;
 ALTER TABLE local_ole.ole_ptrn_nte_t ADD CONSTRAINT FK_ole_ptrn_nte_t_ole_ptrn_t_ole_ptrn_id FOREIGN KEY(ole_ptrn_id) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id);
@@ -1078,6 +1092,7 @@ CREATE INDEX fk_ole_ptrn_t_borr_typ ON local_ole.ole_ptrn_t(borr_typ);
 CREATE INDEX fk_ole_ptrn_t_ole_src ON local_ole.ole_ptrn_t(ole_src);
 CREATE INDEX fk_ole_ptrn_t_ole_stat_cat ON local_ole.ole_ptrn_t(ole_stat_cat);
 CREATE INDEX fk_ole_ptrn_local_id_t_ole_ptrn_id ON local_ole.ole_ptrn_local_id_t(ole_ptrn_id);
+CREATE INDEX fk_ole_proxy_ptrn_t_ole_ptrn_id ON local_ole.ole_proxy_ptrn_t(ole_ptrn_id);
 CREATE INDEX fk_ole_dlvr_add_t_ole_ptrn_id ON local_ole.ole_dlvr_add_t(ole_ptrn_id);
 CREATE INDEX fk_ole_dlvr_add_t_entity_addr_id ON local_ole.ole_dlvr_add_t(entity_addr_id);
 CREATE INDEX fk_ole_ptrn_nte_t_ole_ptrn_id ON local_ole.ole_ptrn_nte_t(ole_ptrn_id);

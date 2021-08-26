@@ -416,6 +416,20 @@ LEFT JOIN user_groups g ON g.id = u.data->>'patronGroup'
 LEFT JOIN user_users u2 ON u2.id = u.data#>>'{metadata,createdByUserId}'
 LEFT JOIN user_users u3 ON u3.id = u.data#>>'{metadata,updatedByUserId}';
 
+/*Proxy patrons*/
+TRUNCATE TABLE local_ole.ole_proxy_ptrn_t CASCADE;
+INSERT INTO local_ole.ole_proxy_ptrn_t
+SELECT 
+    id AS ole_proxy_ptrn_id,
+    id AS obj_id,
+    1 AS ver_nbr,
+    user_id AS ole_ptrn_id,
+    proxy_user_id AS ole_proxy_ptrn_ref_id,
+    expiration_date::timestamp AS ole_proxy_ptrn_exp_dt,
+    (data#>>'{metadata,createdDate}')::timestamp AS ole_proxy_ptrn_act_dt,
+    CASE WHEN (status = 'Active') THEN 'Y' ELSE 'N' END AS actv_ind
+FROM user_proxiesfor;
+
 /*User*/
 TRUNCATE TABLE local_ole.krim_prncpl_t CASCADE;
 INSERT INTO local_ole.krim_prncpl_t
