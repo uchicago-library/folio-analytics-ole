@@ -44,6 +44,8 @@ SELECT * FROM local_ole.ole_dlvr_add_t LIMIT 100;
 SELECT * FROM local_ole.ole_ptrn_nte_t LIMIT 100;
 /*PersonExt*/
 SELECT * FROM local_ole.uc_entity_ext LIMIT 100;
+/*Proxy patrons*/
+SELECT * FROM local_ole.ole_proxy_ptrn_t LIMIT 100;
 /*User*/
 SELECT * FROM local_ole.krim_prncpl_t LIMIT 100;
 /*UserRole*/
