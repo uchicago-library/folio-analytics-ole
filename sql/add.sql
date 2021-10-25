@@ -679,7 +679,7 @@ CREATE TABLE local_ole.ole_dlvr_circ_record (
     department_id VARCHAR(40),
     other_affiliation VARCHAR(40),
     statistical_category VARCHAR(40),
-    itm_id VARCHAR(40) NOT NULL,
+    itm_id VARCHAR(40),
     bib_tit TEXT,
     bib_auth VARCHAR(500),
     bib_edition VARCHAR(500),
