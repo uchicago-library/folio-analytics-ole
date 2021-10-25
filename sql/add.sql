@@ -704,7 +704,7 @@ CREATE TABLE local_ole.ole_dlvr_circ_record (
     check_in_dt_time TIMESTAMP,
     check_in_optr_id VARCHAR(40),
     check_in_mach_id VARCHAR(100),
-    item_uuid VARCHAR(100) NOT NULL,
+    item_uuid VARCHAR(100),
     itm_locn VARCHAR(100),
     hldng_locn VARCHAR(100),
     item_typ_id VARCHAR(100),
