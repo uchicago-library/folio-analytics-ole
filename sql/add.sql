@@ -521,7 +521,7 @@ CREATE TABLE local_ole.ole_ds_holdings_note_t (
 CREATE TABLE local_ole.ole_ds_item_t (
     item_id INT NOT NULL,
     holdings_id INT NOT NULL,
-    barcode VARCHAR(20),
+    barcode VARCHAR(40),
     fast_add VARCHAR(1),
     staff_only VARCHAR(1),
     uri VARCHAR(400),
