@@ -88,7 +88,7 @@ fi
 
 git pull
 
-for sql in "remove.sql" "add.sql" "load.sql"; do
+for sql in "remove.sql" "add.sql" "load.sql" "extra_tables.sql"; do
     $psql_cmd -f $sql $database
 done
 
