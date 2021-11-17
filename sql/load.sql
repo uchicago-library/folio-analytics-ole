@@ -257,8 +257,8 @@ FROM user_users;
 TRUNCATE TABLE local_ole.krim_entity_addr_t CASCADE;
 INSERT INTO local_ole.krim_entity_addr_t
 SELECT
-md5(id || (a->>'addressTypeId') || (a->>'addressLine1')) AS entity_addr_id,
-md5(id || (a->>'addressTypeId') || (a->>'addressLine1')) AS obj_id,
+md5(id || coalesce(a->>'addressTypeId','') || coalesce(a->>'addressLine1','')) AS entity_addr_id,
+md5(id || coalesce(a->>'addressTypeId','') || coalesce(a->>'addressLine1','')) AS obj_id,
 1.0 AS ver_nbr,
 'PERSON' AS ent_typ_cd,
 id AS entity_id,
