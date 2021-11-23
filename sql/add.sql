@@ -1047,7 +1047,7 @@ ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_recor
 ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_record_krim_entity_afltn_t_affiliation_id FOREIGN KEY(affiliation_id) REFERENCES local_ole.krim_entity_afltn_t(entity_afltn_id);
 ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_record_ole_dlvr_stat_cat_t_statistical_cate136 FOREIGN KEY(statistical_category) REFERENCES local_ole.ole_dlvr_stat_cat_t(ole_dlvr_stat_cat_id);
 ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_record_ole_ptrn_t_proxy_ptrn_id FOREIGN KEY(proxy_ptrn_id) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id);
-ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_record_ole_crcl_dsk_t_circ_loc_id FOREIGN KEY(circ_loc_id) REFERENCES local_ole.ole_crcl_dsk_t(ole_crcl_dsk_id);
+-- ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_record_ole_crcl_dsk_t_circ_loc_id FOREIGN KEY(circ_loc_id) REFERENCES local_ole.ole_crcl_dsk_t(ole_crcl_dsk_id);
 ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_record_krim_prncpl_t_optr_crte_id FOREIGN KEY(optr_crte_id) REFERENCES local_ole.krim_prncpl_t(prncpl_id);
 ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_record_krim_prncpl_t_optr_modi_id FOREIGN KEY(optr_modi_id) REFERENCES local_ole.krim_prncpl_t(prncpl_id);
 ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_record_krim_entity_t_ovrr_optr_id FOREIGN KEY(ovrr_optr_id) REFERENCES local_ole.krim_entity_t(entity_id);
