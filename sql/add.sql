@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS citext;
+
 /*Country*/
 CREATE TABLE local_ole.krlc_cntry_t (
     postal_cntry_cd VARCHAR(2) NOT NULL,
@@ -135,11 +137,11 @@ CREATE TABLE local_ole.krim_entity_nm_t (
     ver_nbr DECIMAL(8,0) NOT NULL,
     entity_id VARCHAR(40),
     nm_typ_cd VARCHAR(40),
-    first_nm VARCHAR(40),
-    middle_nm VARCHAR(40),
-    last_nm VARCHAR(80),
-    suffix_nm VARCHAR(20),
-    prefix_nm VARCHAR(20),
+    first_nm CITEXT,
+    middle_nm CITEXT,
+    last_nm CITEXT,
+    suffix_nm CITEXT,
+    prefix_nm CITEXT,
     dflt_ind VARCHAR(1),
     actv_ind VARCHAR(1),
     last_updt_dt TIMESTAMP,
