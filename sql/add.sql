@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS citext;
+
 /*Country*/
 CREATE TABLE local_ole.krlc_cntry_t (
     postal_cntry_cd VARCHAR(2) NOT NULL,
