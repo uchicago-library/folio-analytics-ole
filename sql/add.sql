@@ -541,7 +541,7 @@ CREATE TABLE local_ole.ole_ds_item_t (
     enumeration VARCHAR(100),
     chronology VARCHAR(100),
     copy_number VARCHAR(20),
-    num_pieces VARCHAR(10),
+    num_pieces VARCHAR(20),
     desc_of_pieces VARCHAR(400),
     purchase_order_line_item_id VARCHAR(45),
     vendor_line_item_id VARCHAR(45),
