@@ -994,7 +994,6 @@ ALTER TABLE local_ole.krim_entity_phone_t ADD CONSTRAINT FK_krim_entity_phone_t_
 ALTER TABLE local_ole.krim_entity_phone_t ADD CONSTRAINT FK_krim_entity_phone_t_krlc_cntry_t_postal_cntry_cd FOREIGN KEY(postal_cntry_cd) REFERENCES local_ole.krlc_cntry_t(postal_cntry_cd);
 ALTER TABLE local_ole.krim_entity_email_t ADD CONSTRAINT FK_krim_entity_email_t_krim_entity_t_entity_id FOREIGN KEY(entity_id) REFERENCES local_ole.krim_entity_t(entity_id);
 ALTER TABLE local_ole.krim_entity_addr_t ADD CONSTRAINT FK_krim_entity_addr_t_krim_entity_t_entity_id FOREIGN KEY(entity_id) REFERENCES local_ole.krim_entity_t(entity_id) ON DELETE CASCADE;
-ALTER TABLE local_ole.krim_entity_addr_t ADD CONSTRAINT FK_krim_entity_addr_t_krlc_cntry_t_postal_cntry_cd FOREIGN KEY(postal_cntry_cd) REFERENCES local_ole.krlc_cntry_t(postal_cntry_cd);
 ALTER TABLE local_ole.krim_entity_afltn_t ADD CONSTRAINT FK_krim_entity_afltn_t_krim_entity_t_entity_id FOREIGN KEY(entity_id) REFERENCES local_ole.krim_entity_t(entity_id) ON DELETE CASCADE;
 ALTER TABLE local_ole.krim_entity_emp_info_t ADD CONSTRAINT FK_krim_entity_emp_info_t_krim_entity_t_entity_id FOREIGN KEY(entity_id) REFERENCES local_ole.krim_entity_t(entity_id) ON DELETE CASCADE;
 ALTER TABLE local_ole.krim_entity_emp_info_t ADD CONSTRAINT FK_krim_entity_emp_info_t_krim_entity_afltn_t_entity_afltn_id FOREIGN KEY(entity_afltn_id) REFERENCES local_ole.krim_entity_afltn_t(entity_afltn_id);
