@@ -401,7 +401,7 @@ CREATE TABLE local_ole.ole_dlvr_item_avail_stat_t (
 /*ItemType1*/
 CREATE TABLE local_ole.ole_cat_itm_typ_t (
     itm_typ_cd_id VARCHAR(40) NOT NULL,
-    itm_typ_cd VARCHAR(40) NOT NULL,
+    itm_typ_cd VARCHAR(100) NOT NULL,
     itm_typ_nm VARCHAR(100) NOT NULL,
     itm_typ_desc VARCHAR(700),
     src VARCHAR(100) NOT NULL,
@@ -541,7 +541,7 @@ CREATE TABLE local_ole.ole_ds_item_t (
     enumeration VARCHAR(100),
     chronology VARCHAR(100),
     copy_number VARCHAR(20),
-    num_pieces VARCHAR(20),
+    num_pieces TEXT,
     desc_of_pieces VARCHAR(400),
     purchase_order_line_item_id VARCHAR(45),
     vendor_line_item_id VARCHAR(45),
