@@ -1016,7 +1016,6 @@ ALTER TABLE local_ole.ole_locn_t ADD CONSTRAINT FK_ole_locn_t_ole_locn_t_parent_
 ALTER TABLE local_ole.ole_ds_bib_info_t ADD CONSTRAINT FK_ole_ds_bib_info_t_ole_ds_bib_t_bib_id FOREIGN KEY(bib_id) REFERENCES local_ole.ole_ds_bib_t(bib_id);
 ALTER TABLE local_ole.ole_ds_holdings_t ADD CONSTRAINT FK_ole_ds_holdings_t_ole_ds_bib_t_bib_id FOREIGN KEY(bib_id) REFERENCES local_ole.ole_ds_bib_t(bib_id);
 ALTER TABLE local_ole.ole_ds_holdings_note_t ADD CONSTRAINT FK_ole_ds_holdings_note_t_ole_ds_holdings_t_holdings_id FOREIGN KEY(holdings_id) REFERENCES local_ole.ole_ds_holdings_t(holdings_id);
-ALTER TABLE local_ole.ole_ds_item_t ADD CONSTRAINT FK_ole_ds_item_t_ole_ds_holdings_t_holdings_id FOREIGN KEY(holdings_id) REFERENCES local_ole.ole_ds_holdings_t(holdings_id);
 ALTER TABLE local_ole.ole_ds_item_t ADD CONSTRAINT FK_ole_ds_item_t_ole_ptrn_t_current_borrower FOREIGN KEY(current_borrower) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id);
 ALTER TABLE local_ole.ole_ds_item_t ADD CONSTRAINT FK_ole_ds_item_t_ole_ptrn_t_proxy_borrower FOREIGN KEY(proxy_borrower) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id);
 ALTER TABLE local_ole.ole_ds_item_note_t ADD CONSTRAINT FK_ole_ds_item_note_t_ole_ds_item_t_item_id FOREIGN KEY(item_id) REFERENCES local_ole.ole_ds_item_t(item_id);
