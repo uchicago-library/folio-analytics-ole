@@ -546,7 +546,7 @@ SELECT
     id AS obj_id,
     1.0 AS ver_nbr,
     replace(code, 'UC/HP/', 'UC/') AS locn_cd,
-    description AS locn_name,
+    name AS locn_name,
     '5' AS level_id,
     NULL AS parent_locn_id,
     CASE WHEN is_active THEN 'Y' ELSE 'N' END AS row_act_ind
