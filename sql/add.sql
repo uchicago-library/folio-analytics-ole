@@ -258,7 +258,7 @@ CREATE TABLE local_ole.ole_ptrn_t (
     expiration_date TIMESTAMP,
     activation_date TIMESTAMP,
     general_block_nt VARCHAR(250),
-    inv_barcode_num VARCHAR(20),
+    inv_barcode_num VARCHAR(140),
     inv_barcode_num_eff_date TIMESTAMP,
     ole_src VARCHAR(40),
     ole_stat_cat VARCHAR(40),
@@ -523,7 +523,7 @@ CREATE TABLE local_ole.ole_ds_holdings_note_t (
 CREATE TABLE local_ole.ole_ds_item_t (
     item_id INT NOT NULL,
     holdings_id INT NOT NULL,
-    barcode VARCHAR(40),
+    barcode VARCHAR(140),
     fast_add VARCHAR(1),
     staff_only VARCHAR(1),
     uri VARCHAR(400),
@@ -719,7 +719,7 @@ CREATE TABLE local_ole.ole_dlvr_circ_record (
 /*Return*/
 CREATE TABLE local_ole.ole_return_history_t (
     id VARCHAR(40) NOT NULL,
-    item_barcode VARCHAR(40),
+    item_barcode VARCHAR(140),
     item_uuid VARCHAR(40),
     item_returned_dt TIMESTAMP,
     operator VARCHAR(40),
@@ -795,7 +795,7 @@ CREATE TABLE local_ole.ole_dlvr_ptrn_bill_fee_typ_t (
     pay_status_id VARCHAR(40) NOT NULL,
     fee_typ_id VARCHAR(40) NOT NULL,
     fee_typ_amt DECIMAL(10,4) NOT NULL,
-    itm_barcode VARCHAR(40),
+    itm_barcode VARCHAR(140),
     balance_amt DECIMAL(10,4),
     ptrn_bill_date TIMESTAMP NOT NULL,
     pay_forgive_note VARCHAR(500),
