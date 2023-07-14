@@ -101,7 +101,7 @@ CREATE TABLE local_ole.ole_dlvr_borr_typ_t (
 /*PatronCategory*/
 CREATE TABLE local_ole.ole_dlvr_stat_cat_t (
     ole_dlvr_stat_cat_id VARCHAR(40) NOT NULL,
-    ole_dlvr_stat_cat_cd VARCHAR(40) NOT NULL,
+    ole_dlvr_stat_cat_cd TEXT NOT NULL,
     ole_dlvr_stat_cat_desc VARCHAR(700) NOT NULL,
     ole_dlvr_stat_cat_nm VARCHAR(100) NOT NULL,
     obj_id VARCHAR(36) NOT NULL,
@@ -332,13 +332,13 @@ CREATE TABLE local_ole.uc_entity_ext (
 /*Proxy Patron*/
 CREATE TABLE local_ole.ole_proxy_ptrn_t (
     ole_proxy_ptrn_id VARCHAR(40) NOT NULL,
-    obj_id varchar(40), 
-    ver_nbr DECIMAL(8,0), 
+    obj_id varchar(40),
+    ver_nbr DECIMAL(8,0),
     ole_ptrn_id VARCHAR(40),
-    ole_proxy_ptrn_ref_id VARCHAR(40) NOT NULL,  
-    ole_proxy_ptrn_exp_dt TIMESTAMP, 
+    ole_proxy_ptrn_ref_id VARCHAR(40) NOT NULL,
+    ole_proxy_ptrn_exp_dt TIMESTAMP,
     ole_proxy_ptrn_act_dt TIMESTAMP,
-    actv_ind VARCHAR(1), 
+    actv_ind VARCHAR(1),
     CONSTRAINT PK_ole_proxy_ptrn_t PRIMARY KEY(ole_proxy_ptrn_id)
 );
 
@@ -933,17 +933,17 @@ CREATE TABLE local_ole.ole_dlvr_rqst_t (
 
 /*Person1*/
 CREATE VIEW local_ole.uc_people AS
-SELECT 
-e.entity_id AS id, 
+SELECT
+e.entity_id AS id,
 CONCAT_WS(' ', n.first_nm, n.middle_nm, n.last_nm) AS name,
-n.first_nm AS first_name, 
-n.middle_nm AS middle_name, 
-n.last_nm AS last_name, 
-ee.chicago_id, 
-p.barcode AS library_id, 
-ee.student_id, 
-r.prncpl_nm AS user_name, 
-m.email_addr AS email_address, 
+n.first_nm AS first_name,
+n.middle_nm AS middle_name,
+n.last_nm AS last_name,
+ee.chicago_id,
+p.barcode AS library_id,
+ee.student_id,
+r.prncpl_nm AS user_name,
+m.email_addr AS email_address,
 p.activation_date,
 p.expiration_date,
 CASE WHEN p.actv_ind = 'Y' THEN true ELSE false END AS active,
@@ -968,14 +968,14 @@ ee.staff_division,
 ee.staff_department,
 ee.student_division,
 ee.student_department,
-COALESCE(ee.deceased, false) AS deceased, 
-COALESCE(ee.collections, false) AS collections, 
+COALESCE(ee.deceased, false) AS deceased,
+COALESCE(ee.collections, false) AS collections,
 ee.creation_time,
 ee.creation_user_name,
 ee.last_write_time,
 ee.last_write_user_name
 FROM local_ole.krim_entity_t e
-LEFT JOIN local_ole.ole_ptrn_t p ON e.entity_id = p.ole_ptrn_id 
+LEFT JOIN local_ole.ole_ptrn_t p ON e.entity_id = p.ole_ptrn_id
 LEFT JOIN local_ole.uc_entity_ext ee ON ee.id = e.entity_id
 JOIN local_ole.krim_entity_nm_t n ON e.entity_id = n.entity_id
 LEFT JOIN local_ole.krim_prncpl_t r ON e.entity_id = r.entity_id
