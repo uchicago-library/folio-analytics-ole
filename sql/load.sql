@@ -176,9 +176,9 @@ SELECT
 id AS entity_id,
 id AS obj_id,
 1.0 AS ver_nbr,
-CASE WHEN (data->>'active')::boolean THEN 'Y' ELSE 'N' END AS actv_ind,
-(data#>>'{metadata,updatedDate}')::timestamp with time zone AS last_updt_dt
-FROM user_users;
+CASE WHEN (jsonb_extract_path_text(jsonb,'active'))::boolean THEN 'Y' ELSE 'N' END AS actv_ind,
+(jsonb_extract_path_text(jsonb,'metadata','updatedDate'))::timestamp with time zone AS last_updt_dt
+FROM folio_users.users;
 
 /*Name*/
 TRUNCATE TABLE local_ole.krim_entity_nm_t CASCADE;
