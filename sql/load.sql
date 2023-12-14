@@ -152,10 +152,10 @@ md5(code) AS obj_id,
 FROM
 (
 SELECT
-data#>>'{customFields,category}' AS code
-FROM user_users
-WHERE data#>>'{customFields,category}' IS NOT NULL
-GROUP BY data#>>'{customFields,category}'
+jsonb_extract_path_text(jsonb,'customFields','category') AS code
+FROM folio_users.users
+WHERE jsonb_extract_path_text(jsonb,'customFields','category') IS NOT NULL
+GROUP BY jsonb_extract_path_text(jsonb,'customFields','category')
 ) a;
 
 /*PatronNoteType*/
