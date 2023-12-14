@@ -246,12 +246,12 @@ id AS obj_id,
 1.0 AS ver_nbr,
 'PERSON' AS ent_typ_cd,
 id AS entity_id,
-CASE WHEN data#>>'{personal,email}' LIKE '%uchicago.edu' OR data#>>'{personal,email}' LIKE '%uchospitals.edu' THEN 'CMP' ELSE 'HM' END AS email_typ_cd,
-data#>>'{personal,email}' AS email_addr,
+CASE WHEN jsonb_extract_path_text(jsonb,'personal','email') LIKE '%uchicago.edu' OR jsonb_extract_path_text(jsonb,'personal','email') LIKE '%uchospitals.edu' THEN 'CMP' ELSE 'HM' END AS email_typ_cd,
+jsonb_extract_path_text(jsonb,'personal','email') AS email_addr,
 'Y' AS dflt_ind,
 'Y' AS actv_ind,
-(data#>>'{metadata,updatedDate}')::timestamp with time zone AS last_updt_dt
-FROM user_users;
+(jsonb_extract_path_text(jsonb,'metadata','updatedDate'))::timestamp with time zone AS last_updt_dt
+FROM folio_users.users;
 
 /*Address*/
 TRUNCATE TABLE local_ole.krim_entity_addr_t CASCADE;
