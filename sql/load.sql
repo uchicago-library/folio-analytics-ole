@@ -437,13 +437,13 @@ SELECT
 id AS prncpl_id,
 id AS obj_id,
 1.0 AS ver_nbr,
-data->>'username' AS prncpl_nm,
+jsonb_extract_path_text(jsonb,'username') AS prncpl_nm,
 id AS entity_id,
 NULL AS prncpl_pswd,
-CASE WHEN (data->>'active')::boolean THEN 'Y' ELSE 'N' END AS actv_ind,
-(data#>>'{metadata,updatedDate}')::timestamp with time zone AS last_updt_dt
-FROM user_users
-WHERE data->>'username' IS NOT NULL;
+CASE WHEN (jsonb_extract_path_text(jsonb,'active'))::boolean THEN 'Y' ELSE 'N' END AS actv_ind,
+(jsonb_extract_path_text(jsonb,'metadata','updatedDate'))::timestamp with time zone AS last_updt_dt
+FROM folio_users.users
+WHERE jsonb_extract_path_text(jsonb,'username') IS NOT NULL;
 
 /*UserRole*/
 TRUNCATE TABLE local_ole.krim_role_mbr_t CASCADE;
