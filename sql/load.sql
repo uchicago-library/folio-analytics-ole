@@ -130,13 +130,13 @@ TRUNCATE TABLE local_ole.ole_dlvr_borr_typ_t CASCADE;
 INSERT INTO local_ole.ole_dlvr_borr_typ_t
 SELECT
 id AS dlvr_borr_typ_id,
-data->>'desc' AS dlvr_borr_typ_cd,
-data->>'group' AS dlvr_borr_typ_desc,
-data->>'group' AS dlvr_borr_typ_nm,
+jsonb_extract_path_text(jsonb,'desc') AS dlvr_borr_typ_cd,
+jsonb_extract_path_text(jsonb,'group') AS dlvr_borr_typ_desc,
+jsonb_extract_path_text(jsonb,'group') AS dlvr_borr_typ_nm,
 id AS obj_id,
 1.0 AS ver_nbr,
 'Y' AS row_act_ind
-FROM user_groups;
+FROM folio_users.groups;
 
 /*PatronCategory*/
 TRUNCATE TABLE local_ole.ole_dlvr_stat_cat_t CASCADE;
