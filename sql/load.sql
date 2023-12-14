@@ -189,18 +189,18 @@ id AS obj_id,
 1.0 AS ver_nbr,
 id AS entity_id,
 NULL AS nm_typ_cd,
-data#>>'{personal,firstName}' AS first_nm,
-data#>>'{personal,middleName}' AS middle_nm,
-data#>>'{personal,lastName}' AS last_nm,
+jsonb_extract_path_text(jsonb,'personal','firstName') AS first_nm,
+jsonb_extract_path_text(jsonb,'personal','middleName') AS middle_nm,
+jsonb_extract_path_text(jsonb,'personal','lastName') AS last_nm,
 NULL AS suffix_nm,
 NULL AS prefix_nm,
 'Y' AS dflt_ind,
 'Y' AS actv_ind,
-(data#>>'{metadata,updatedDate}')::timestamp with time zone AS last_updt_dt,
+(jsonb_extract_path_text(jsonb,'metadata','updatedDate'))::timestamp with time zone AS last_updt_dt,
 NULL AS title_nm,
 NULL AS note_msg,
 NULL AS nm_chng_dt
-FROM user_users;
+FROM folio_users.users;
 
 /*PhoneNumber*/
 TRUNCATE TABLE local_ole.krim_entity_phone_t CASCADE;
