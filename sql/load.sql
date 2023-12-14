@@ -324,25 +324,25 @@ SELECT
 id AS ole_ptrn_id,
 id AS obj_id,
 1.0 AS ver_nbr,
-data->>'barcode' AS barcode,
-CASE WHEN data->>'patronGroup' IS NOT NULL THEN data->>'patronGroup' ELSE '06f2d60e-0b07-49ca-b8c7-e1d49808e0b7' END AS borr_typ,
-CASE WHEN (data->>'active')::boolean THEN 'Y' ELSE 'N' END AS actv_ind,
+jsonb_extract_path_text(jsonb,'barcode') AS barcode,
+CASE WHEN jsonb_extract_path_text(jsonb,'patronGroup') IS NOT NULL THEN jsonb_extract_path_text(jsonb,'patronGroup') ELSE '06f2d60e-0b07-49ca-b8c7-e1d49808e0b7' END AS borr_typ,
+CASE WHEN (jsonb_extract_path_text(jsonb,'active'))::boolean THEN 'Y' ELSE 'N' END AS actv_ind,
 NULL AS general_block,
 NULL AS paging_privilege,
 NULL AS courtesy_notice,
 NULL AS delivery_privilege,
-(data->>'expirationDate')::timestamp with time zone AS expiration_date,
-(data->>'enrollmentDate')::timestamp with time zone AS activation_date,
+(jsonb_extract_path_text(jsonb,'expirationDate'))::timestamp with time zone AS expiration_date,
+(jsonb_extract_path_text(jsonb,'enrollmentDate'))::timestamp with time zone AS activation_date,
 NULL AS general_block_nt,
 NULL AS inv_barcode_num,
 NULL AS inv_barcode_num_eff_date,
-CASE data#>>'{customFields,source}' 
+CASE jsonb_extract_path_text(jsonb,'customFields','source') 
 WHEN 'University' THEN '9e58b46a-1ba9-430f-8373-0a343231aaf0' 
 WHEN 'Library' THEN '6306ab00-04d3-41ce-8691-25ccda4daff5' 
 ELSE NULL END AS ole_src,
-md5(data#>>'{customFields,category}') AS ole_stat_cat,
+md5(jsonb_extract_path_text(jsonb,'customFields','category')) AS ole_stat_cat,
 NULL AS photograph
-FROM user_users;
+FROM folio_users.users;
 
 /*PatronId1*/
 TRUNCATE TABLE local_ole.ole_ptrn_local_id_t CASCADE;
