@@ -206,36 +206,36 @@ FROM folio_users.users;
 TRUNCATE TABLE local_ole.krim_entity_phone_t CASCADE;
 INSERT INTO local_ole.krim_entity_phone_t
 SELECT
-md5(id || 'HOME' || (data#>>'{personal,phone}')) AS entity_phone_id,
-md5(id || 'HOME' || (data#>>'{personal,phone}')) AS obj_id,
+md5(id || 'HOME' || (jsonb_extract_path_text(jsonb,'personal','phone'))) AS entity_phone_id,
+md5(id || 'HOME' || (jsonb_extract_path_text(jsonb,'personal','phone'))) AS obj_id,
 1.0 AS ver_nbr,
 'PERSON' AS ent_typ_cd,
 id AS entity_id,
 'HOME' AS phone_typ_cd,
-data#>>'{personal,phone}' AS phone_nbr,
+jsonb_extract_path_text(jsonb,'personal','phone') AS phone_nbr,
 NULL AS phone_extn_nbr,
 NULL AS postal_cntry_cd,
 NULL AS dflt_ind,
 'Y' AS actv_ind,
-(data#>>'{metadata,updatedDate}')::timestamp with time zone AS last_updt_dt
-FROM user_users 
-WHERE data#>>'{personal,phone}' IS NOT NULL 
+(jsonb_extract_path_text(jsonb,'metadata','updatedDate'))::timestamp with time zone AS last_updt_dt
+FROM folio_users.users  
+WHERE jsonb_extract_path_text(jsonb,'personal','phone') IS NOT NULL 
 UNION
 SELECT
-md5(id || 'MOBILE' || (data#>>'{personal,mobilePhone}')) AS entity_phone_id,
-md5(id || 'MOBILE' || (data#>>'{personal,mobilePhone}')) AS obj_id,
+md5(id || 'MOBILE' || (jsonb_extract_path_text(jsonb,'personal','mobilePhone'))) AS entity_phone_id,
+md5(id || 'MOBILE' || (jsonb_extract_path_text(jsonb,'personal','mobilePhone'))) AS obj_id,
 1.0 AS ver_nbr,
 'PERSON' AS ent_typ_cd,
 id AS entity_id,
 'MOBILE' AS phone_typ_cd,
-data#>>'{personal,mobilePhone}' AS phone_nbr,
+jsonb_extract_path_text(jsonb,'personal','mobilePhone') AS phone_nbr,
 NULL AS phone_extn_nbr,
 NULL AS postal_cntry_cd,
 NULL AS dflt_ind,
 'Y' AS actv_ind,
-(data#>>'{metadata,updatedDate}')::timestamp with time zone AS last_updt_dt
-FROM user_users 
-WHERE data#>>'{personal,mobilePhone}' IS NOT NULL ;
+(jsonb_extract_path_text(jsonb,'metadata','updatedDate'))::timestamp with time zone AS last_updt_dt
+FROM folio_users.users 
+WHERE jsonb_extract_path_text(jsonb,'personal','mobilePhone') IS NOT NULL ;
 
 /*EmailAddress*/
 TRUNCATE TABLE local_ole.krim_entity_email_t CASCADE;
