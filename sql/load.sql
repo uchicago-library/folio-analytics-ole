@@ -352,9 +352,9 @@ id AS ole_ptrn_local_seq_id,
 id AS obj_id,
 1.0 AS ver_nbr,
 id AS ole_ptrn_id,
-data->>'externalSystemId' AS local_id
-FROM user_users 
-WHERE data->>'externalSystemId' IS NOT NULL;
+jsonb_extract_path_text(jsonb,'externalSystemId') AS local_id
+FROM folio_users.users 
+WHERE jsonb_extract_path_text(jsonb,'externalSystemId') IS NOT NULL;
 
 /*PatronAddress*/
 TRUNCATE TABLE local_ole.ole_dlvr_add_t CASCADE;
