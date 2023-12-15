@@ -467,13 +467,13 @@ SELECT
     id::uuid AS shvlg_schm_id,
     id AS obj_id,
     1.0 AS ver_nbr,
-    substring(name FOR 40) AS shvlg_schm_cd,
-    name AS shvlg_schm_nm,
-    source AS src,
+    substring(jsonb_extract_path_text(jsonb,'name') FOR 40) AS shvlg_schm_cd,
+    jsonb_extract_path_text(jsonb,'name') AS shvlg_schm_nm,
+    jsonb_extract_path_text(jsonb,'source') AS src,
     '2012-03-22 00:00:00.0'::timestamp AS src_dt,
     'Y' AS row_act_ind,
     NULL AS date_updated
-FROM inventory_call_number_types;
+FROM folio_inventory.call_number_type;
 
 /*ItemStatus*/
 /* 
