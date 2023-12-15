@@ -393,28 +393,28 @@ TRUNCATE TABLE local_ole.uc_entity_ext CASCADE;
 INSERT INTO local_ole.uc_entity_ext
 SELECT
 u.id AS id,
-(u.data#>>'{customFields,studentId}')::int AS student_id,
-CASE WHEN CHAR_LENGTH(u.data->>'externalSystemId') = 9 THEN u.data->>'externalSystemId' ELSE NULL END AS chicago_id, 
-u.data#>>'{customFields,staffDivision}' AS staff_division,
-u.data#>>'{customFields,staffDepartment}' AS staff_department,
-u.data#>>'{customFields,studentDivision}' AS student_division,
-u.data#>>'{customFields,studentDepartment}' AS student_department,
-u.data#>>'{customFields,status}' AS status,
-u.data#>>'{customFields,statuses}' AS statuses,
-u.data#>>'{customFields,staffStatus}' AS staff_status,
-u.data#>>'{customFields,studentStatus}' AS student_status,
-(u.data#>>'{customFields,studentRestriction}')::boolean AS student_restriction,
-u.data#>>'{customFields,staffPrivileges}' AS staff_privileges,
-COALESCE((u.data#>>'{customFields,deceased}')::boolean, false) AS deceased, 
-COALESCE((u.data#>>'{customFields,collections}')::boolean, false) AS collections, 
-(u.data#>>'{metadata,createdDate}')::timestamp with time zone AS creation_time,
-u2.data->>'username' AS creation_user_name,
-(u.data#>>'{metadata,updatedDate}')::timestamp with time zone AS last_write_time,
-u3.data->>'username' AS last_write_user_name
-FROM user_users u
-LEFT JOIN user_groups g ON g.id = u.data->>'patronGroup'
-LEFT JOIN user_users u2 ON u2.id = u.data#>>'{metadata,createdByUserId}'
-LEFT JOIN user_users u3 ON u3.id = u.data#>>'{metadata,updatedByUserId}';
+(jsonb_extract_path_text(u.jsonb,'customFields','studentId'))::int AS student_id,
+CASE WHEN CHAR_LENGTH(jsonb_extract_path_text(u.jsonb,'externalSystemId')) = 9 THEN jsonb_extract_path_text(u.jsonb,'externalSystemId') ELSE NULL END AS chicago_id, 
+jsonb_extract_path_text(u.jsonb,'customFields','staffDivision') AS staff_division,
+jsonb_extract_path_text(u.jsonb,'customFields','staffDepartment') AS staff_department,
+jsonb_extract_path_text(u.jsonb,'customFields','studentDivision') AS student_division,
+jsonb_extract_path_text(u.jsonb,'customFields','studentDepartment') AS student_department,
+jsonb_extract_path_text(u.jsonb,'customFields','status') AS status,
+jsonb_extract_path_text(u.jsonb,'customFields','statuses') AS statuses,
+jsonb_extract_path_text(u.jsonb,'customFields','staffStatus') AS staff_status,
+jsonb_extract_path_text(u.jsonb,'customFields','studentStatus') AS student_status,
+jsonb_extract_path_text(u.jsonb,'customFields','studentRestriction')::boolean AS student_restriction,
+jsonb_extract_path_text(u.jsonb,'customFields','staffPrivileges') AS staff_privileges,
+COALESCE((jsonb_extract_path_text(u.jsonb,'customFields','deceased'))::boolean, false) AS deceased, 
+COALESCE((jsonb_extract_path_text(u.jsonb,'customFields','collections'))::boolean, false) AS collections, 
+(jsonb_extract_path_text(u.jsonb,'metadata','createdDate'))::timestamp with time zone AS creation_time,
+jsonb_extract_path_text(u2.jsonb,'username') AS creation_user_name,
+(jsonb_extract_path_text(u.jsonb,'metadata','updatedDate'))::timestamp with time zone AS last_write_time,
+jsonb_extract_path_text(u3.jsonb,'username') AS last_write_user_name
+FROM folio_users.users AS u
+LEFT JOIN folio_users.groups AS g ON g.id = jsonb_extract_path_text(u.jsonb,'patronGroup')::uuid
+LEFT JOIN folio_users.users AS u2 ON u2.id = jsonb_extract_path_text(u.jsonb,'metadata','createdByUserId')::uuid
+LEFT JOIN folio_users.users AS u3 ON u3.id = jsonb_extract_path_text(u.jsonb,'metadata','updatedByUserId')::uuid;
 
 /*Proxy patrons*/
 TRUNCATE TABLE local_ole.ole_proxy_ptrn_t CASCADE;
