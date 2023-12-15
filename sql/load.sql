@@ -592,21 +592,21 @@ FROM inventory_instances;
 TRUNCATE TABLE local_ole.ole_ds_holdings_t CASCADE;
 INSERT INTO local_ole.ole_ds_holdings_t
 SELECT
-	holdings.hrid::int AS holdings_id,
-	instance.hrid::int AS bib_id,
-	holdings_type.name AS holdings_type,
+	jsonb_extract_path_text(holdings.jsonb,'hrid')::int AS holdings_id,
+	jsonb_extract_path_text(instance.jsonb,'hrid')::int AS bib_id,
+	jsonb_extract_path_text(holdings_type.jsonb,'name') AS holdings_type,
 	NULL AS former_holdings_id,
-	(CASE WHEN holdings.discovery_suppress THEN 'Y' ELSE 'N' END) AS staff_only,
+	(CASE WHEN jsonb_extract_path_text(holdings.jsonb,'discoverySuppress')::boolean THEN 'Y' ELSE 'N' END) AS staff_only,
 	NULL AS location_id,
-	holdings_permanent_location.code AS location,
+	jsonb_extract_path_text(holdings_permanent_location.jsonb,'code') AS location,
 	NULL AS location_level,
-    call_number_type_id::uuid AS call_number_type_id,
-	holdings.call_number_prefix AS call_number_prefix,
-	holdings.call_number AS call_number,
+   	jsonb_extract_path_text(holdings.jsonb,'callNumberTypeId')::uuid AS call_number_type_id,
+	jsonb_extract_path_text(holdings.jsonb,'callNumberPrefix') AS call_number_prefix,
+	jsonb_extract_path_text(holdings.jsonb,'callNumber') AS call_number,
 	NULL AS shelving_order,
-	CASE WHEN char_length(holdings.copy_number) > 20 
-		THEN substring(holdings.copy_number FOR 20)
-		ELSE holdings.copy_number 
+	CASE WHEN char_length(jsonb_extract_path_text(holdings.jsonb,'copyNumber')) > 20 
+		THEN substring(jsonb_extract_path_text(holdings.jsonb,'copyNumber') FOR 20)
+		ELSE jsonb_extract_path_text(holdings.jsonb,'copyNumber') 
 	END AS copy_number,
 	NULL AS receipt_status_id,
 	NULL AS publisher,
@@ -639,15 +639,15 @@ SELECT
 	NULL AS materials_specified,
 	NULL AS first_indicator,
 	NULL AS second_indicator,
-	holdings.data#>>'{metadata,createdByUsername}' AS created_by,
-	(holdings.data#>>'{metadata,createdDate}')::timestamp with time zone AS date_created,
-	holdings.data#>>'{metadata,updatedByUsername}' AS updated_by,
-	(holdings.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated
+	jsonb_extract_path_text(holdings.jsonb,'metadata','createdByUsername') AS created_by,
+	jsonb_extract_path_text(holdings.jsonb,'metadata','createdDate')::timestamp with time zone AS date_created,
+	jsonb_extract_path_text(holdings.jsonb,'metadata','updatedByUsername') AS updated_by,
+	jsonb_extract_path_text(holdings.jsonb,'metadata','updatedDate')::timestamp with time zone AS date_updated
 FROM 
-	inventory_holdings holdings
-	JOIN inventory_instances instance ON instance.id = holdings.instance_id
-	LEFT JOIN inventory_holdings_types AS holdings_type ON holdings.holdings_type_id = holdings_type.id
-	LEFT JOIN inventory_locations AS holdings_permanent_location ON holdings.permanent_location_id = holdings_permanent_location.id;
+	folio_inventory.holdings_record AS holdings
+	JOIN folio_inventory.instance AS instance ON instance.id = jsonb_extract_path_text(holdings.jsonb,'instanceId')::uuid
+	LEFT JOIN folio_inventory.holdings_type AS holdings_type ON jsonb_extract_path_text(holdings.jsonb,'holdingsTypeId')::uuid = holdings_type.id
+	LEFT JOIN folio_inventory.location AS holdings_permanent_location ON jsonb_extract_path_text(holdings.jsonb,'permanentLocationId')::uuid = holdings_permanent_location.id;
 
 /*HoldingNote*/
 /* ~1.5 min. */
