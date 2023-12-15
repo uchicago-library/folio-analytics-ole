@@ -786,19 +786,19 @@ FROM rqst_types;
 TRUNCATE TABLE local_ole.ole_crcl_dsk_t CASCADE;
 INSERT INTO local_ole.ole_crcl_dsk_t
 SELECT
-    code AS ole_crcl_dsk_code,
-    discovery_display_name AS ole_crcl_dsk_pub_name,
-    "name" AS ole_crcl_dsk_staff_name,
+    jsonb_extract_path_text(jsonb,'code') AS ole_crcl_dsk_code,
+    jsonb_extract_path_text(jsonb,'discoveryDisplayName') AS ole_crcl_dsk_pub_name,
+    jsonb_extract_path_text(jsonb,'name') AS ole_crcl_dsk_staff_name,
     'Y' AS actv_ind,
-    CASE WHEN pickup_location THEN 'Y' ELSE 'N' END AS pk_up_locn_ind,
-    CASE WHEN code = 'ITS' OR code = 'POLSKY' THEN 'N' ELSE 'Y' END AS asr_pk_up_locn_ind,
-    ("data"#>>'{holdShelfExpiryPeriod, duration}')::int AS hld_days,
+    CASE WHEN jsonb_extract_path_text(jsonb,'pickupLocation')::boolean THEN 'Y' ELSE 'N' END AS pk_up_locn_ind,
+    CASE WHEN (jsonb_extract_path_text(jsonb,'code') = 'ITS' OR jsonb_extract_path_text(jsonb,'code') = 'POLSKY') THEN 'N' ELSE 'Y' END AS asr_pk_up_locn_ind,
+    (jsonb_extract_path_text(jsonb,'holdShelfExpiryPeriod','duration'))::int AS hld_days,
     NULL AS slvng_lag_tim,
     'Y' AS prnt_slp_ind,
     id AS ole_crcl_dsk_id,
     NULL AS ole_clndr_grp_id,
     NULL AS hold_format,
-    CASE WHEN code = 'API' THEN 'N' ELSE 'Y' END AS hold_queue,
+    CASE WHEN jsonb_extract_path_text(jsonb,'code') = 'API' THEN 'N' ELSE 'Y' END AS hold_queue,
     NULL AS reply_to_email,
     NULL AS rqst_expirtin_days,
     NULL AS staffed,
@@ -808,7 +808,7 @@ SELECT
     NULL AS dflt_pick_up_locn_id,
     NULL AS from_email,
     id AS uc_obj_id
-FROM public.inventory_service_points;
+FROM folio_inventory.service_point;
 
 /*DeskLocation*/
 TRUNCATE TABLE local_ole.ole_crcl_dsk_locn_t CASCADE;
