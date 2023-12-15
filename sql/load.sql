@@ -904,20 +904,20 @@ TRUNCATE TABLE local_ole.ole_return_history_t CASCADE;
 INSERT INTO local_ole.ole_return_history_t
 SELECT
     check_ins.id AS id,
-    item.barcode AS item_barcode,
-    check_ins.item_id AS item_uuid,
-    check_ins.occurred_date_time,
+    jsonb_extract_path_text(item.jsonb,'barcode') AS item_barcode,
+    jsonb_extract_path_text(check_ins.jsonb,'itemId')::uuid AS item_uuid,
+    jsonb_extract_path_text(check_ins.jsonb,'occurredDateTime') AS occurred_date_time,
     /* operator JOINs on krim_prncpl_t.PRNCPL_ID, should be same as user_users.id */
-    check_ins.performed_by_user_id AS operator,
-    svc_pts.code AS cir_desk_loc,
+    jsonb_extract_path_text(check_ins.jsonb,'performedByUserId') AS operator,
+    jsonb_extract_path_text(svc_pts.jsonb,'code') AS cir_desk_loc,
     NULL AS cir_desk_route_to,
     1.0 AS ver_nbr,
     check_ins.id AS obj_id,
-    upper(item.data#>>'{status, name}') AS returned_item_status,
-    item.hrid::integer AS uc_item_id
-FROM circulation_check_ins check_ins
-    LEFT JOIN inventory_items AS item ON check_ins.item_id = item.id
-    LEFT JOIN inventory_service_points AS svc_pts ON check_ins.service_point_id = svc_pts.id;
+    upper(jsonb_extract_path_text(item.jsonb,'status','name')) AS returned_item_status,
+    jsonb_extract_path_text(item.jsonb,'hrid')::integer AS uc_item_id
+FROM folio_circulation.check_in AS check_ins
+    LEFT JOIN folio_inventory.item AS item ON jsonb_extract_path_text(check_ins.jsonb,'itemId')::uuid = item.id
+    LEFT JOIN folio_inventory.service_point AS svc_pts ON jsonb_extract_path_text(check_ins.jsonb,'servicePointId')::uuid = svc_pts.id;
 
 /*RecentReturn*/
 TRUNCATE TABLE local_ole.ole_dlvr_recently_returned_t CASCADE;
