@@ -423,12 +423,12 @@ SELECT
     id AS ole_proxy_ptrn_id,
     id AS obj_id,
     1 AS ver_nbr,
-    user_id AS ole_ptrn_id,
-    proxy_user_id AS ole_proxy_ptrn_ref_id,
-    expiration_date::timestamp AS ole_proxy_ptrn_exp_dt,
-    (data#>>'{metadata,createdDate}')::timestamp AS ole_proxy_ptrn_act_dt,
-    CASE WHEN (status = 'Active') THEN 'Y' ELSE 'N' END AS actv_ind
-FROM user_proxiesfor;
+    jsonb_extract_path_text(jsonb,'userId') AS ole_ptrn_id,
+    jsonb_extract_path_text(jsonb,'proxyUserId') AS ole_proxy_ptrn_ref_id,
+    jsonb_extract_path_text(jsonb,'expirationDate')::timestamp AS ole_proxy_ptrn_exp_dt,
+    jsonb_extract_path_text(jsonb,'metadata','createdDate')::timestamp AS ole_proxy_ptrn_act_dt,
+    CASE WHEN (jsonb_extract_path_text(jsonb,'status') = 'Active') THEN 'Y' ELSE 'N' END AS actv_ind
+FROM folio_users.proxyfor;
 
 /*User*/
 TRUNCATE TABLE local_ole.krim_prncpl_t CASCADE;
