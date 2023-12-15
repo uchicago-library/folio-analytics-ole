@@ -527,16 +527,16 @@ TRUNCATE TABLE local_ole.ole_cat_itm_typ_t CASCADE;
 INSERT INTO local_ole.ole_cat_itm_typ_t
 SELECT
   loan_types.id AS itm_typ_cd_id,
-  loan_types.name AS itm_typ_cd,
-  loan_types.name AS itm_typ_nm,
+  jsonb_extract_path_text(loan_types.jsonb,'name') AS itm_typ_cd,
+  jsonb_extract_path_text(loan_types.jsonb,'name') AS itm_typ_nm,
   NULL AS itm_typ_desc,
   '' AS src,
   NULL AS src_dt,
   '' AS row_act_ind,
   loan_types.id AS obj_id,
   1.0 AS ver_nbr,
-  (loan_types.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated
-FROM public.inventory_loan_types loan_types;
+  (jsonb_extract_path_text(loan_types.jsonb,'metadata','updatedDate'))::timestamp with time zone AS date_updated
+FROM folio_inventory.loan_type AS loan_types;
 
 /*Location*/
 TRUNCATE TABLE local_ole.ole_locn_t CASCADE;
