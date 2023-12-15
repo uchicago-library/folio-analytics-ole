@@ -856,15 +856,15 @@ TRUNCATE TABLE local_ole.ole_dlvr_circ_record CASCADE;
 INSERT INTO local_ole.ole_dlvr_circ_record
 SELECT
     loan_hist.id AS cir_his_rec_id,
-    loan_hist.data#>>'{loan, id}' AS loan_tran_id,
+    jsonb_extract_path_text(loan_hist.jsonb,'loan','id') AS loan_tran_id,
     NULL AS cir_policy_id,
-    loan_hist.data#>>'{loan, userId}' AS ole_ptrn_id, /* must be equal to krim_entity_t.entity_id, = user_users.id */
+    jsonb_extract_path_text(loan_hist.jsonb,'loan','userId') AS ole_ptrn_id, /* must be equal to krim_entity_t.entity_id, = user_users.id */
     NULL AS ptrn_typ_id,
     NULL AS affiliation_id,
     NULL AS department_id,
     NULL AS other_affiliation,
     NULL AS statistical_category,
-    item.barcode AS itm_id,
+    jsonb_extract_path_text(item.jsonb,'barcode') AS itm_id,
     NULL AS bib_tit,
     NULL AS bib_auth,
     NULL AS bib_edition,
@@ -872,11 +872,11 @@ SELECT
     NULL AS bib_pub_dt,
     NULL AS bib_isbn,
     NULL AS proxy_ptrn_id,
-    (loan_hist.data#>>'{loan, dueDate}')::timestamp AS due_dt_time,
+    (jsonb_extract_path_text(loan_hist.jsonb,'loan','dueDate'))::timestamp AS due_dt_time,
     NULL AS past_due_dt_time,
-    (loan_hist.data#>>'{loan, metadata, createdDate}')::timestamp AS crte_dt_time,
+    (jsonb_extract_path_text(loan_hist.jsonb,'loan','metadata','createdDate'))::timestamp AS crte_dt_time,
     NULL AS modi_dt_time,
-    loan_hist.data#>>'{loan, checkoutServicePointId}' AS circ_loc_id,
+    jsonb_extract_path_text(loan_hist.jsonb,'loan','checkoutServicePointId') AS circ_loc_id,
     NULL AS optr_crte_id,
     NULL AS optr_modi_id,
     NULL AS mach_id,
@@ -895,9 +895,9 @@ SELECT
     NULL AS item_typ_id,
     NULL AS temp_item_typ_id,
     NULL AS check_in_dt_time_ovr_rd,
-    (item.hrid)::integer AS uc_item_id
-FROM circulation_loan_history loan_hist
-    LEFT JOIN inventory_items AS item ON loan_hist.data#>>'{loan, itemId}' = item.id;
+    (jsonb_extract_path_text(item.jsonb,'hrid'))::integer AS uc_item_id
+FROM folio_circulation.audit_loan AS loan_hist
+    LEFT JOIN folio_inventory.item AS item ON jsonb_extract_path_text(loan_hist.jsonb,'loan','itemId')::uuid = item.id;
 
 /*Return*/
 TRUNCATE TABLE local_ole.ole_return_history_t CASCADE;
