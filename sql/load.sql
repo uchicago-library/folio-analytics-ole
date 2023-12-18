@@ -545,12 +545,12 @@ SELECT
     local_ole.uuid_to_ole_id_str(id) AS locn_id,
     id AS obj_id,
     1.0 AS ver_nbr,
-    replace(code, 'UC/HP/', 'UC/') AS locn_cd,
-    name AS locn_name,
+    replace(jsonb_extract_path_text(jsonb,'code'), 'UC/HP/', 'UC/') AS locn_cd,
+    jsonb_extract_path_text(jsonb,'name') AS locn_name,
     '5' AS level_id,
     NULL AS parent_locn_id,
-    CASE WHEN is_active THEN 'Y' ELSE 'N' END AS row_act_ind
-FROM inventory_locations;
+    CASE WHEN jsonb_extract_path_text(jsonb,'isActive')::boolean THEN 'Y' ELSE 'N' END AS row_act_ind
+FROM folio_inventory.location;
 
 /*Bib*/
 /* ~17 minutes */
