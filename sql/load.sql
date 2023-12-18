@@ -1097,17 +1097,17 @@ SELECT
     circ_req.id AS obj_id,
     1.0 AS ver_nbr,
     NULL AS po_ln_itm_no,
-    circ_req.data#>>'{item, barcode}' AS itm_id,
-    circ_req.requester_id AS ole_ptrn_id,
-    circ_req.data#>>'{requester, barcode}' AS ole_ptrn_barcd,
+    jsonb_extract_path_text(circ_req.jsonb,'item','barcode') AS itm_id,
+    jsonb_extract_path_text(circ_req.jsonb,'requesterId') AS ole_ptrn_id,
+    jsonb_extract_path_text(circ_req.jsonb,'requester','barcode') AS ole_ptrn_barcd,
     NULL AS proxy_ptrn_id,
     NULL AS proxy_ptrn_barcd,
     rqst_typ.ole_rqst_typ_id AS ole_rqst_typ_id,
     NULL AS cntnt_desc,
-    circ_req.request_expiration_date AS rqst_expir_dt_time,
+    jsonb_extract_path_text(circ_req.jsonb,'requestExpirationDate') AS rqst_expir_dt_time,
     NULL AS rcal_ntc_snt_dt,
     NULL AS onhld_ntc_snt_dt,
-    circ_req.request_date AS crte_dt_time,
+    jsonb_extract_path_text(circ_req.jsonb,'requestDate') AS crte_dt_time,
     NULL AS modi_dt_time,
     NULL AS cpy_frmt,
     NULL AS loan_tran_id,
@@ -1117,7 +1117,7 @@ SELECT
     NULL AS circ_loc_id,
     NULL AS mach_id,
     NULL AS ptrn_q_pos,
-    circ_req.item_id AS item_uuid,
+    jsonb_extract_path_text(circ_req.jsonb,'itemId') AS item_uuid,
     NULL AS rqst_stat,
     NULL AS asr_flag,
     'Item Level' AS rqst_lvl,
@@ -1126,6 +1126,5 @@ SELECT
     NULL AS rqst_note,
     NULL AS uc_bib_id,
     NULL AS uc_item_id
-FROM circulation_requests circ_req
-    JOIN local_ole.ole_dlvr_rqst_typ_t rqst_typ
-        ON ole_rqst_typ_cd = circ_req.request_type;
+FROM folio_circulation.request AS circ_req
+	JOIN local_ole.ole_dlvr_rqst_typ_t AS rqst_typ ON ole_rqst_typ_cd = jsonb_extract_path_text(circ_req.jsonb,'requestType');
