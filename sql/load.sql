@@ -672,28 +672,28 @@ FROM
 TRUNCATE TABLE local_ole.ole_ds_item_t CASCADE;
 INSERT INTO local_ole.ole_ds_item_t
 SELECT
-    items.hrid::int AS item_id,
-    holdings.hrid::int AS holdings_id,
-    items.barcode AS barcode,
+    jsonb_extract_path_text(items.jsonb,'hrid')::int AS item_id,
+    jsonb_extract_path_text(holdings.jsonb,'hrid')::int AS holdings_id,
+    jsonb_extract_path_text(items.jsonb,'barcode') AS barcode,
     NULL AS fast_add,
-    (CASE WHEN items.discovery_suppress THEN 'Y' ELSE 'N' END) AS staff_only,
+    (CASE WHEN jsonb_extract_path_text(items.jsonb,'discoverySuppress')::boolean THEN 'Y' ELSE 'N' END) AS staff_only,
     NULL AS uri,
-    items.permanent_loan_type_id AS item_type_id,
-    items.temporary_loan_type_id AS temp_item_type_id,
-    md5(items.data#>>'{status,name}') AS item_status_id,
-    (items.data#>>'{status,date}')::timestamp AS item_status_date_updated,
-    local_ole.uuid_to_ole_id_int(items.permanent_location_id) AS location_id,
-    locations.code AS location,
+    items.permanentloantypeid AS item_type_id,
+    items.temporaryloantypeid AS temp_item_type_id,
+    md5(jsonb_extract_path_text(items.jsonb,'status','name')) AS item_status_id,
+    jsonb_extract_path_text(items.jsonb,'status','date')::timestamp AS item_status_date_updated,
+    local_ole.uuid_to_ole_id_int(items.permanentlocationid) AS location_id,
+    jsonb_extract_path_text(locations.jsonb,'code') AS location,
     NULL AS location_level,
-    call_number_type_id::uuid AS call_number_type_id,
-    item_level_call_number_prefix AS call_number_prefix,
-    item_level_call_number AS call_number,
-    items.effective_shelving_order AS shelving_order,
-    enumeration AS enumeration,
-    chronology AS chronology,
-    items.copy_number AS copy_number,
-    number_of_pieces AS num_pieces,
-    description_of_pieces AS desc_of_pieces,
+    callnumbertypeid::uuid AS call_number_type_id,
+    jsonb_extract_path_text(items.jsonb,'itemLevelCallNumberPrefix') AS call_number_prefix,
+    jsonb_extract_path_text(items.jsonb,'itemLevelCallNumber') AS call_number,
+    jsonb_extract_path_text(items.jsonb,'effectiveShelvingOrder') AS shelving_order,
+    jsonb_extract_path_text(items.jsonb,'enumeration') AS enumeration,
+    jsonb_extract_path_text(items.jsonb,'chronology') AS chronology,
+    jsonb_extract_path_text(items.jsonb,'copyNumber') AS copy_number,
+    jsonb_extract_path_text(items.jsonb,'numberOfPieces') AS num_pieces,
+    jsonb_extract_path_text(items.jsonb,'descriptionOfPieces') AS desc_of_pieces,
     NULL AS purchase_order_line_item_id,
     NULL AS vendor_line_item_id,
     NULL AS fund,
@@ -715,17 +715,17 @@ SELECT
     NULL AS barcode_arsl,
     NULL AS high_density_storage_id,
     NULL AS num_of_renew,
-    items.data#>>'{metadata,createdByUsername}' AS created_by,
-    (items.data#>>'{metadata,createdDate}')::timestamp with time zone AS date_created,
-    items.data#>>'{metadata,updatedByUsername}' AS updated_by,
-    (items.data#>>'{metadata,updatedDate}')::timestamp with time zone AS date_updated,
+    jsonb_extract_path_text(items.jsonb,'metadata','createdByUsername') AS created_by,
+    jsonb_extract_path_text(items.jsonb,'metadata','createdDate')::timestamp with time zone AS date_created,
+    jsonb_extract_path_text(items.jsonb,'metadata','updatedByUsername') AS updated_by,
+    jsonb_extract_path_text(items.jsonb,'metadata','updatedDate')::timestamp with time zone AS date_updated,
     NULL AS unique_id_prefix,
     NULL AS org_due_date_time,
     NULL AS volume_number
 FROM
-    inventory_items items
-    JOIN inventory_holdings holdings ON holdings.id = items.holdings_record_id
-    LEFT JOIN inventory_locations AS locations ON items.effective_location_id = locations.id;
+    folio_inventory.item AS items
+    JOIN folio_inventory.holdings_record AS holdings ON holdings.id = items.holdingsrecordid
+    LEFT JOIN folio_inventory.location AS locations ON items.effectivelocationid = locations.id;
 
 /*ItemNote*/
 /* ~2 min. */
