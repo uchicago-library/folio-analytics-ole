@@ -655,17 +655,17 @@ TRUNCATE TABLE local_ole.ole_ds_holdings_note_t CASCADE;
 INSERT INTO local_ole.ole_ds_holdings_note_t
 SELECT
     /* need multiply by 100, multiply by 10 results in non-unique key */
-    (holdings.hrid::int * 100) + notes.ORDINALITY AS holdings_note_id,
-    CAST( holdings.hrid AS integer ) AS holdings_id,
-    CASE WHEN (notes.data#>>'{staffOnly}')::boolean
+    (jsonb_extract_path_text(holdings.jsonb,'hrid')::int * 100) + notes.ORDINALITY AS holdings_note_id,
+    CAST(jsonb_extract_path_text(holdings.jsonb,'hrid') AS integer ) AS holdings_id,
+    CASE WHEN (jsonb_extract_path_text(notes.jsonb,'staffOnly'))::boolean
         THEN 'nonPublic' 
         ELSE 'Public'
     END AS type,
-    json_extract_path_text(notes.data, 'note') AS note,
+    jsonb_extract_path_text(notes.jsonb,'note') AS note,
     NULL AS date_updated
 FROM
-    inventory_holdings AS holdings
-    CROSS JOIN json_array_elements(json_extract_path(data, 'notes')) WITH ORDINALITY AS notes (data);
+    folio_inventory.holdings_record AS holdings
+    CROSS JOIN jsonb_array_elements(jsonb_extract_path(jsonb,'notes')) WITH ORDINALITY AS notes(jsonb);
 
 /*Item*/
 /* ~15 minutes */
