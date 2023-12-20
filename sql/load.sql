@@ -732,17 +732,17 @@ FROM
 TRUNCATE TABLE local_ole.ole_ds_item_note_t CASCADE;
 INSERT INTO local_ole.ole_ds_item_note_t
 SELECT
-    (items.hrid::int * 10) + notes.ORDINALITY AS item_note_id,
-    CAST( items.hrid AS integer ) AS item_id,
-    CASE WHEN (notes.data#>>'{staffOnly}')::boolean
+    (jsonb_extract_path_text(items.jsonb,'hrid')::int * 10) + notes.ORDINALITY AS item_note_id,
+    CAST(jsonb_extract_path_text(items.jsonb,'hrid') AS integer ) AS item_id,
+    CASE WHEN (jsonb_extract_path_text(notes.jsonb,'staffOnly'))::boolean
         THEN 'nonPublic' 
         ELSE 'Public'
     END AS type,
-    json_extract_path_text(notes.data, 'note') AS note,
+    jsonb_extract_path_text(notes.jsonb,'note') AS note,
     NULL AS date_updated
 FROM
-    inventory_items AS items
-    CROSS JOIN json_array_elements(json_extract_path(data, 'notes')) WITH ORDINALITY AS notes (data);
+    folio_inventory.item AS items
+    CROSS JOIN jsonb_array_elements(jsonb_extract_path(jsonb,'notes')) WITH ORDINALITY AS notes(jsonb);
 
 /*ItemHolding*/
 TRUNCATE TABLE local_ole.ole_ds_item_holdings_t CASCADE;
