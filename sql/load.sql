@@ -257,30 +257,30 @@ FROM folio_users.users;
 TRUNCATE TABLE local_ole.krim_entity_addr_t CASCADE;
 INSERT INTO local_ole.krim_entity_addr_t
 SELECT
-md5(id || coalesce(a->>'addressTypeId','') || coalesce(a->>'addressLine1','')) AS entity_addr_id,
-md5(id || coalesce(a->>'addressTypeId','') || coalesce(a->>'addressLine1','')) AS obj_id,
+md5(id || coalesce(jsonb_extract_path_text(a.jsonb,'addressTypeId'),'') || coalesce(jsonb_extract_path_text(a.jsonb,'addressLine1'),'')) AS entity_addr_id,
+md5(id || coalesce(jsonb_extract_path_text(a.jsonb,'addressTypeId'),'') || coalesce(jsonb_extract_path_text(a.jsonb,'addressLine1'),'')) AS obj_id,
 1.0 AS ver_nbr,
 'PERSON' AS ent_typ_cd,
-id AS entity_id,
-a->>'addressTypeId' AS addr_typ_cd,
-a->>'addressLine1' AS addr_line_1,
-a->>'addressLine2' AS addr_line_2,
+u.id AS entity_id,
+jsonb_extract_path_text(a.jsonb,'addressTypeId') AS addr_typ_cd,
+jsonb_extract_path_text(a.jsonb,'addressLine1') AS addr_line_1,
+jsonb_extract_path_text(a.jsonb,'addressLine2') AS addr_line_2,
 NULL AS addr_line_3,
-a->>'city' AS city,
-(a->>'region')::varchar(2) AS state_pvc_cd,
-a->>'postalCode' AS postal_cd,
-a->>'countryId' AS postal_cntry_cd,
+jsonb_extract_path_text(a.jsonb,'city') AS city,
+(jsonb_extract_path_text(a.jsonb,'region'))::varchar(2) AS state_pvc_cd,
+jsonb_extract_path_text(a.jsonb,'postalCode') AS postal_cd,
+jsonb_extract_path_text(a.jsonb,'countryId') AS postal_cntry_cd,
 /* FOLIO had a primary address, not a default. Few notices delivered by mail now */
 NULL AS dflt_ind,
 'Y' AS actv_ind,
-(data#>>'{metadata,updatedDate}')::timestamp with time zone AS last_updt_dt,
+(jsonb_extract_path_text(u.jsonb,'metadata','updatedDate'))::timestamp with time zone AS last_updt_dt,
 NULL AS attn_line,
 NULL AS addr_fmt,
 NULL AS mod_dt,
 NULL AS valid_dt,
 'Y' AS valid_ind,
 NULL AS note_msg
-FROM user_users u, json_array_elements(data#>'{personal,addresses}') a ;
+FROM folio_users.users AS u, jsonb_array_elements(jsonb_extract_path(u.jsonb,'personal','addresses')) AS a;
 
 /*Affiliation*/
 TRUNCATE TABLE local_ole.krim_entity_afltn_t CASCADE;
