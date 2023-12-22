@@ -578,14 +578,14 @@ LEFT JOIN folio_inventory.instance_status AS iis ON iis.id = jsonb_extract_path_
 TRUNCATE TABLE local_ole.ole_ds_bib_info_t CASCADE;
 INSERT INTO local_ole.ole_ds_bib_info_t
 SELECT
-    'wbm-'||hrid AS bib_id_str, /* using OLE nomenclature, could use UUIDs */
-    hrid::int AS bib_id,
-    title AS title,
-    data#>>'{contributors, 0, name}' AS author,
-    data#>>'{publication, 0, publisher}' AS publisher,
+    'wbm-'||(jsonb_extract_path_text(jsonb,'hrid')) AS bib_id_str, /* using OLE nomenclature, could use UUIDs */
+    jsonb_extract_path_text(jsonb,'hrid')::int AS bib_id,
+    jsonb_extract_path_text(jsonb,'title') AS title,
+    jsonb_extract_path_text(jsonb,'contributors','0','name') AS author,
+    jsonb_extract_path_text(jsonb,'publication','0','publisher') AS publisher,
     NULL AS isxn,
-    (data#>>'{metadata, updatedDate}')::timestamp AS date_updated
-FROM inventory_instances;
+    (jsonb_extract_path_text(jsonb,'metadata','updatedDate'))::timestamp AS date_updated
+FROM folio_inventory.instance;
 
 /*Holding*/
 /* ~10 minutes */
