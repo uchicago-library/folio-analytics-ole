@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Derive OLE compatibility tables from LDP tables
+# Derive OLE compatibility tables from Metadb tables
 
 usage() {
     cat <<EOF >&2
 Usage:
-rebuild.sh [-U <pg_user>] [-h <pg_host>] [-p <pg_port>] \\
+metadb_rebuild.sh [-U <pg_user>] [-h <pg_host>] [-p <pg_port>] \\
   -g <path to folio-analytics-ole repo working directory> \\
   [-b branch] \\
   [-r <role to grant access to local_ole schema and tables>] \\
@@ -88,7 +88,7 @@ fi
 
 git pull
 
-for sql in "remove.sql" "add.sql" "load.sql" "extra_tables.sql"; do
+for sql in "remove.sql" "add.sql" "metadb_load.sql" "metadb_extra_tables.sql"; do
     $psql_cmd -f $sql $database
 done
 
