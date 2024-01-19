@@ -35,7 +35,7 @@ name AS postal_cntry_nm,
 'N' AS pstl_cntry_rstrc_ind,
 'Y' AS actv_ind,
 alpha3_code AS alt_postal_cntry_cd
-FROM local.uc_countries;
+FROM local_ole.uc_countries;
 
 /*State*/
 TRUNCATE TABLE local_ole.krlc_st_t CASCADE;
@@ -218,8 +218,8 @@ NULL AS postal_cntry_cd,
 NULL AS dflt_ind,
 'Y' AS actv_ind,
 (jsonb_extract_path_text(jsonb,'metadata','updatedDate'))::timestamp with time zone AS last_updt_dt
-FROM folio_users.users  
-WHERE jsonb_extract_path_text(jsonb,'personal','phone') IS NOT NULL 
+FROM folio_users.users
+WHERE jsonb_extract_path_text(jsonb,'personal','phone') IS NOT NULL
 UNION
 SELECT
 md5(id || 'MOBILE' || (jsonb_extract_path_text(jsonb,'personal','mobilePhone'))) AS entity_phone_id,
@@ -234,7 +234,7 @@ NULL AS postal_cntry_cd,
 NULL AS dflt_ind,
 'Y' AS actv_ind,
 (jsonb_extract_path_text(jsonb,'metadata','updatedDate'))::timestamp with time zone AS last_updt_dt
-FROM folio_users.users 
+FROM folio_users.users
 WHERE jsonb_extract_path_text(jsonb,'personal','mobilePhone') IS NOT NULL ;
 
 /*EmailAddress*/
@@ -336,9 +336,9 @@ NULL AS delivery_privilege,
 NULL AS general_block_nt,
 NULL AS inv_barcode_num,
 NULL AS inv_barcode_num_eff_date,
-CASE jsonb_extract_path_text(jsonb,'customFields','source') 
-WHEN 'University' THEN '9e58b46a-1ba9-430f-8373-0a343231aaf0' 
-WHEN 'Library' THEN '6306ab00-04d3-41ce-8691-25ccda4daff5' 
+CASE jsonb_extract_path_text(jsonb,'customFields','source')
+WHEN 'University' THEN '9e58b46a-1ba9-430f-8373-0a343231aaf0'
+WHEN 'Library' THEN '6306ab00-04d3-41ce-8691-25ccda4daff5'
 ELSE NULL END AS ole_src,
 md5(jsonb_extract_path_text(jsonb,'customFields','category')) AS ole_stat_cat,
 NULL AS photograph
@@ -353,7 +353,7 @@ id AS obj_id,
 1.0 AS ver_nbr,
 id AS ole_ptrn_id,
 jsonb_extract_path_text(jsonb,'externalSystemId') AS local_id
-FROM folio_users.users 
+FROM folio_users.users
 WHERE jsonb_extract_path_text(jsonb,'externalSystemId') IS NOT NULL;
 
 /*PatronAddress*/
@@ -394,7 +394,7 @@ INSERT INTO local_ole.uc_entity_ext
 SELECT
 u.id AS id,
 (jsonb_extract_path_text(u.jsonb,'customFields','studentId'))::int AS student_id,
-CASE WHEN CHAR_LENGTH(jsonb_extract_path_text(u.jsonb,'externalSystemId')) = 9 THEN jsonb_extract_path_text(u.jsonb,'externalSystemId') ELSE NULL END AS chicago_id, 
+CASE WHEN CHAR_LENGTH(jsonb_extract_path_text(u.jsonb,'externalSystemId')) = 9 THEN jsonb_extract_path_text(u.jsonb,'externalSystemId') ELSE NULL END AS chicago_id,
 jsonb_extract_path_text(u.jsonb,'customFields','staffDivision') AS staff_division,
 jsonb_extract_path_text(u.jsonb,'customFields','staffDepartment') AS staff_department,
 jsonb_extract_path_text(u.jsonb,'customFields','studentDivision') AS student_division,
@@ -405,8 +405,8 @@ jsonb_extract_path_text(u.jsonb,'customFields','staffStatus') AS staff_status,
 jsonb_extract_path_text(u.jsonb,'customFields','studentStatus') AS student_status,
 jsonb_extract_path_text(u.jsonb,'customFields','studentRestriction')::boolean AS student_restriction,
 jsonb_extract_path_text(u.jsonb,'customFields','staffPrivileges') AS staff_privileges,
-COALESCE((jsonb_extract_path_text(u.jsonb,'customFields','deceased'))::boolean, false) AS deceased, 
-COALESCE((jsonb_extract_path_text(u.jsonb,'customFields','collections'))::boolean, false) AS collections, 
+COALESCE((jsonb_extract_path_text(u.jsonb,'customFields','deceased'))::boolean, false) AS deceased,
+COALESCE((jsonb_extract_path_text(u.jsonb,'customFields','collections'))::boolean, false) AS collections,
 (jsonb_extract_path_text(u.jsonb,'metadata','createdDate'))::timestamp with time zone AS creation_time,
 jsonb_extract_path_text(u2.jsonb,'username') AS creation_user_name,
 (jsonb_extract_path_text(u.jsonb,'metadata','updatedDate'))::timestamp with time zone AS last_write_time,
@@ -419,7 +419,7 @@ LEFT JOIN folio_users.users AS u3 ON u3.id = jsonb_extract_path_text(u.jsonb,'me
 /*Proxy patrons*/
 TRUNCATE TABLE local_ole.ole_proxy_ptrn_t CASCADE;
 INSERT INTO local_ole.ole_proxy_ptrn_t
-SELECT 
+SELECT
     id AS ole_proxy_ptrn_id,
     id AS obj_id,
     1 AS ver_nbr,
@@ -476,7 +476,7 @@ SELECT
 FROM folio_inventory.call_number_type;
 
 /*ItemStatus*/
-/* 
+/*
  * Pull List only needs to display status labels.
  * Strategy is to create this table based on the hard-coded values.
  * The ID for referring tables then can always be computed from the text value of the status of the item.
@@ -508,8 +508,8 @@ WITH item_stats(stat) AS (
         ('Unknown'),
         ('Withdrawn')
 )
-INSERT INTO local_ole.ole_dlvr_item_avail_stat_t 
-SELECT 
+INSERT INTO local_ole.ole_dlvr_item_avail_stat_t
+SELECT
     md5(stat) AS item_avail_stat_id,
     stat AS obj_id,
     1.0 AS ver_nbr,
@@ -556,7 +556,7 @@ FROM folio_inventory.location;
 /* ~17 minutes */
 TRUNCATE TABLE local_ole.ole_ds_bib_t CASCADE;
 INSERT INTO local_ole.ole_ds_bib_t
-SELECT 
+SELECT
 CAST( jsonb_extract_path_text(ii.jsonb,'hrid') AS integer ) AS bib_id,
 NULL AS former_id,
 NULL AS fast_add,
@@ -570,7 +570,7 @@ NULL AS status_updated_by,
 jsonb_extract_path_text(ii.jsonb,'statusUpdatedDate') AS status_updated_date,
 NULL AS unique_id_prefix,
 NULL AS CONTENT
-FROM folio_inventory.instance AS ii 
+FROM folio_inventory.instance AS ii
 LEFT JOIN folio_inventory.instance_status AS iis ON iis.id = jsonb_extract_path_text(ii.jsonb,'statusId')::uuid;
 
 /*BibInfo*/
@@ -604,9 +604,9 @@ SELECT
 	jsonb_extract_path_text(holdings.jsonb,'callNumberPrefix') AS call_number_prefix,
 	jsonb_extract_path_text(holdings.jsonb,'callNumber') AS call_number,
 	NULL AS shelving_order,
-	CASE WHEN char_length(jsonb_extract_path_text(holdings.jsonb,'copyNumber')) > 20 
+	CASE WHEN char_length(jsonb_extract_path_text(holdings.jsonb,'copyNumber')) > 20
 		THEN substring(jsonb_extract_path_text(holdings.jsonb,'copyNumber') FOR 20)
-		ELSE jsonb_extract_path_text(holdings.jsonb,'copyNumber') 
+		ELSE jsonb_extract_path_text(holdings.jsonb,'copyNumber')
 	END AS copy_number,
 	NULL AS receipt_status_id,
 	NULL AS publisher,
@@ -643,7 +643,7 @@ SELECT
 	jsonb_extract_path_text(holdings.jsonb,'metadata','createdDate')::timestamp with time zone AS date_created,
 	jsonb_extract_path_text(holdings.jsonb,'metadata','updatedByUsername') AS updated_by,
 	jsonb_extract_path_text(holdings.jsonb,'metadata','updatedDate')::timestamp with time zone AS date_updated
-FROM 
+FROM
 	folio_inventory.holdings_record AS holdings
 	JOIN folio_inventory.instance AS instance ON instance.id = jsonb_extract_path_text(holdings.jsonb,'instanceId')::uuid
 	LEFT JOIN folio_inventory.holdings_type AS holdings_type ON jsonb_extract_path_text(holdings.jsonb,'holdingsTypeId')::uuid = holdings_type.id
@@ -658,7 +658,7 @@ SELECT
     (jsonb_extract_path_text(holdings.jsonb,'hrid')::int * 100) + notes.ORDINALITY AS holdings_note_id,
     CAST(jsonb_extract_path_text(holdings.jsonb,'hrid') AS integer ) AS holdings_id,
     CASE WHEN (jsonb_extract_path_text(notes.jsonb,'staffOnly'))::boolean
-        THEN 'nonPublic' 
+        THEN 'nonPublic'
         ELSE 'Public'
     END AS type,
     jsonb_extract_path_text(notes.jsonb,'note') AS note,
@@ -735,7 +735,7 @@ SELECT
     (jsonb_extract_path_text(items.jsonb,'hrid')::int * 10) + notes.ORDINALITY AS item_note_id,
     CAST(jsonb_extract_path_text(items.jsonb,'hrid') AS integer ) AS item_id,
     CASE WHEN (jsonb_extract_path_text(notes.jsonb,'staffOnly'))::boolean
-        THEN 'nonPublic' 
+        THEN 'nonPublic'
         ELSE 'Public'
     END AS type,
     jsonb_extract_path_text(notes.jsonb,'note') AS note,
