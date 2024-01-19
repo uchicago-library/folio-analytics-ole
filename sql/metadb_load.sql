@@ -542,7 +542,7 @@ FROM folio_inventory.loan_type AS loan_types;
 TRUNCATE TABLE local_ole.ole_locn_t CASCADE;
 INSERT INTO local_ole.ole_locn_t
 SELECT
-    local_ole.uuid_to_ole_id_str(id) AS locn_id,
+    local_ole.uuid_to_ole_id_str(id::varchar) AS locn_id,
     id AS obj_id,
     1.0 AS ver_nbr,
     replace(jsonb_extract_path_text(jsonb,'code'), 'UC/HP/', 'UC/') AS locn_cd,
@@ -682,7 +682,7 @@ SELECT
     items.temporaryloantypeid AS temp_item_type_id,
     md5(jsonb_extract_path_text(items.jsonb,'status','name')) AS item_status_id,
     jsonb_extract_path_text(items.jsonb,'status','date')::timestamp AS item_status_date_updated,
-    local_ole.uuid_to_ole_id_int(items.permanentlocationid) AS location_id,
+    local_ole.uuid_to_ole_id_int(items.permanentlocationid::varchar) AS location_id,
     jsonb_extract_path_text(locations.jsonb,'code') AS location,
     NULL AS location_level,
     callnumbertypeid::uuid AS call_number_type_id,
