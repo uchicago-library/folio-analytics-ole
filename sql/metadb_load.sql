@@ -592,21 +592,21 @@ FROM folio_inventory.instance;
 TRUNCATE TABLE local_ole.ole_ds_holdings_t CASCADE;
 INSERT INTO local_ole.ole_ds_holdings_t
 SELECT
-	jsonb_extract_path_text(holdings.jsonb,'hrid')::int AS holdings_id,
-	jsonb_extract_path_text(instance.jsonb,'hrid')::int AS bib_id,
-	jsonb_extract_path_text(holdings_type.jsonb,'name') AS holdings_type,
+	holdings__t.hrid::int AS holdings_id,
+	instance__t.hrid::int AS bib_id,
+	holdings_type__t.name AS holdings_type,
 	NULL AS former_holdings_id,
-	(CASE WHEN jsonb_extract_path_text(holdings.jsonb,'discoverySuppress')::boolean THEN 'Y' ELSE 'N' END) AS staff_only,
+	(CASE WHEN holdings__t.discovery_suppress THEN 'Y' ELSE 'N' END) AS staff_only,
 	NULL AS location_id,
-	jsonb_extract_path_text(holdings_permanent_location.jsonb,'code') AS location,
+	holdings_permanent_location.code AS location,
 	NULL AS location_level,
-   	jsonb_extract_path_text(holdings.jsonb,'callNumberTypeId')::uuid AS call_number_type_id,
-	jsonb_extract_path_text(holdings.jsonb,'callNumberPrefix') AS call_number_prefix,
-	jsonb_extract_path_text(holdings.jsonb,'callNumber') AS call_number,
+	holdings__t.call_number_type_id,
+	holdings__t.call_number_prefix,
+	holdings__t.call_number,
 	NULL AS shelving_order,
-	CASE WHEN char_length(jsonb_extract_path_text(holdings.jsonb,'copyNumber')) > 20
-		THEN substring(jsonb_extract_path_text(holdings.jsonb,'copyNumber') FOR 20)
-		ELSE jsonb_extract_path_text(holdings.jsonb,'copyNumber')
+	CASE WHEN char_length(holdings__t.copy_number) > 20
+		THEN substring(holdings__t.copy_number FOR 20)
+		ELSE holdings__t.copy_number
 	END AS copy_number,
 	NULL AS receipt_status_id,
 	NULL AS publisher,
@@ -645,9 +645,10 @@ SELECT
 	jsonb_extract_path_text(holdings.jsonb,'metadata','updatedDate')::timestamp with time zone AS date_updated
 FROM
 	folio_inventory.holdings_record AS holdings
-	JOIN folio_inventory.instance AS instance ON instance.id = jsonb_extract_path_text(holdings.jsonb,'instanceId')::uuid
-	LEFT JOIN folio_inventory.holdings_type AS holdings_type ON jsonb_extract_path_text(holdings.jsonb,'holdingsTypeId')::uuid = holdings_type.id
-	LEFT JOIN folio_inventory.location AS holdings_permanent_location ON jsonb_extract_path_text(holdings.jsonb,'permanentLocationId')::uuid = holdings_permanent_location.id;
+	JOIN folio_inventory.holdings_record__t AS holdings__t on holdings__t.id = holdings.id
+	JOIN folio_inventory.instance__t AS instance__t on instance__t.id = holdings__t.instance_id
+	LEFT JOIN folio_inventory.holdings_type__t AS holdings_type__t ON holdings_type__t.id = holdings__t.holdings_type_id
+	LEFT JOIN folio_inventory.location__t AS holdings_permanent_location ON holdings_permanent_location.id = holdings__t.permanent_location_id
 
 /*HoldingNote*/
 /* ~1.5 min. */
