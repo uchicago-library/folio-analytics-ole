@@ -648,7 +648,7 @@ FROM
 	JOIN folio_inventory.holdings_record__t AS holdings__t on holdings__t.id = holdings.id
 	JOIN folio_inventory.instance__t AS instance__t on instance__t.id = holdings__t.instance_id
 	LEFT JOIN folio_inventory.holdings_type__t AS holdings_type__t ON holdings_type__t.id = holdings__t.holdings_type_id
-	LEFT JOIN folio_inventory.location__t AS holdings_permanent_location ON holdings_permanent_location.id = holdings__t.permanent_location_id
+	LEFT JOIN folio_inventory.location__t AS holdings_permanent_location ON holdings_permanent_location.id = holdings__t.permanent_location_id;
 
 /*HoldingNote*/
 /* ~1.5 min. */
