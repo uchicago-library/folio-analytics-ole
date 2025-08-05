@@ -1060,7 +1060,6 @@ ALTER TABLE local_ole.ole_dlvr_loan_t ADD CONSTRAINT FK_ole_dlvr_loan_t_ole_dlvr
 ALTER TABLE local_ole.ole_dlvr_loan_t ADD CONSTRAINT FK_ole_dlvr_loan_t_ole_dlvr_ptrn_bill_t_repmnt_fee_ptrn_bill_id FOREIGN KEY(repmnt_fee_ptrn_bill_id) REFERENCES local_ole.ole_dlvr_ptrn_bill_t(ptrn_bill_id);
 ALTER TABLE local_ole.ole_dlvr_loan_t ADD CONSTRAINT FK_ole_dlvr_loan_t_ole_ds_item_t_uc_item_id FOREIGN KEY(uc_item_id) REFERENCES local_ole.ole_ds_item_t(item_id);
 ALTER TABLE local_ole.ole_return_history_t ADD CONSTRAINT FK_ole_return_history_t_krim_prncpl_t_operator FOREIGN KEY(operator) REFERENCES local_ole.krim_prncpl_t(prncpl_id);
-ALTER TABLE local_ole.ole_return_history_t ADD CONSTRAINT FK_ole_return_history_t_ole_ds_item_t_uc_item_id FOREIGN KEY(uc_item_id) REFERENCES local_ole.ole_ds_item_t(item_id);
 ALTER TABLE local_ole.ole_dlvr_recently_returned_t ADD CONSTRAINT FK_ole_dlvr_recently_returned_t_ole_crcl_dsk_t_circ_desk_id FOREIGN KEY(circ_desk_id) REFERENCES local_ole.ole_crcl_dsk_t(ole_crcl_dsk_id);
 ALTER TABLE local_ole.ole_dlvr_recently_returned_t ADD CONSTRAINT FK_ole_dlvr_recently_returned_t_ole_ds_item_t_uc_item_id FOREIGN KEY(uc_item_id) REFERENCES local_ole.ole_ds_item_t(item_id);
 ALTER TABLE local_ole.ole_dlvr_ptrn_bill_t ADD CONSTRAINT FK_ole_dlvr_ptrn_bill_t_ole_ptrn_t_ole_ptrn_id FOREIGN KEY(ole_ptrn_id) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id);
