@@ -675,7 +675,7 @@ CREATE TABLE local_ole.ole_dlvr_circ_record (
     cir_his_rec_id VARCHAR(40) NOT NULL,
     loan_tran_id VARCHAR(40) NOT NULL,
     cir_policy_id TEXT,
-    ole_ptrn_id VARCHAR(40) NOT NULL,
+    ole_ptrn_id VARCHAR(40),
     ptrn_typ_id VARCHAR(40),
     affiliation_id VARCHAR(40),
     department_id VARCHAR(40),
