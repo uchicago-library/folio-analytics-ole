@@ -673,28 +673,28 @@ FROM
 TRUNCATE TABLE local_ole.ole_ds_item_t CASCADE;
 INSERT INTO local_ole.ole_ds_item_t
 SELECT
-    jsonb_extract_path_text(items.jsonb,'hrid')::int AS item_id,
-    jsonb_extract_path_text(holdings.jsonb,'hrid')::int AS holdings_id,
-    jsonb_extract_path_text(items.jsonb,'barcode') AS barcode,
+    items.hrid::int AS item_id,
+    holdings.hrid::int AS holdings_id,
+    trim(BOTH ' ' FROM items.barcode) AS barcode,
     NULL AS fast_add,
-    (CASE WHEN jsonb_extract_path_text(items.jsonb,'discoverySuppress')::boolean THEN 'Y' ELSE 'N' END) AS staff_only,
+    (CASE WHEN items.discovery_suppress::boolean THEN 'Y' ELSE 'N' END) AS staff_only,
     NULL AS uri,
-    items.permanentloantypeid AS item_type_id,
-    items.temporaryloantypeid AS temp_item_type_id,
-    md5(jsonb_extract_path_text(items.jsonb,'status','name')) AS item_status_id,
-    jsonb_extract_path_text(items.jsonb,'status','date')::timestamp AS item_status_date_updated,
-    local_ole.uuid_to_ole_id_int(items.permanentlocationid::varchar) AS location_id,
-    jsonb_extract_path_text(locations.jsonb,'code') AS location,
+    items.permanent_loan_type_id AS item_type_id,
+    items.temporary_loan_type_id AS temp_item_type_id,
+    md5(jsonb_extract_path_text(items_json.jsonb,'status','name')) AS item_status_id,
+    jsonb_extract_path_text(items_json.jsonb,'status','date')::timestamp AS item_status_date_updated,
+    local_ole.uuid_to_ole_id_int(items.permanent_loan_type_id::varchar) AS location_id,
+    locations.code AS location,
     NULL AS location_level,
-    callnumbertypeid::uuid AS call_number_type_id,
-    jsonb_extract_path_text(items.jsonb,'itemLevelCallNumberPrefix') AS call_number_prefix,
-    jsonb_extract_path_text(items.jsonb,'itemLevelCallNumber') AS call_number,
-    jsonb_extract_path_text(items.jsonb,'effectiveShelvingOrder') AS shelving_order,
-    jsonb_extract_path_text(items.jsonb,'enumeration') AS enumeration,
-    jsonb_extract_path_text(items.jsonb,'chronology') AS chronology,
-    jsonb_extract_path_text(items.jsonb,'copyNumber') AS copy_number,
-    jsonb_extract_path_text(items.jsonb,'numberOfPieces') AS num_pieces,
-    jsonb_extract_path_text(items.jsonb,'descriptionOfPieces') AS desc_of_pieces,
+    items.item_level_call_number_type_id::uuid AS call_number_type_id,
+    items.item_level_call_number_prefix AS call_number_prefix,
+    items.item_level_call_number AS call_number,
+    items.effective_shelving_order AS shelving_order,
+    items.enumeration AS enumeration,
+    items.chronology AS chronology,
+    items.copy_number AS copy_number,
+    items.number_of_pieces AS num_pieces,
+    items.description_of_pieces AS desc_of_pieces,
     NULL AS purchase_order_line_item_id,
     NULL AS vendor_line_item_id,
     NULL AS fund,
@@ -716,17 +716,18 @@ SELECT
     NULL AS barcode_arsl,
     NULL AS high_density_storage_id,
     NULL AS num_of_renew,
-    jsonb_extract_path_text(items.jsonb,'metadata','createdByUsername') AS created_by,
-    jsonb_extract_path_text(items.jsonb,'metadata','createdDate')::timestamp with time zone AS date_created,
-    jsonb_extract_path_text(items.jsonb,'metadata','updatedByUsername') AS updated_by,
-    jsonb_extract_path_text(items.jsonb,'metadata','updatedDate')::timestamp with time zone AS date_updated,
+    jsonb_extract_path_text(items_json.jsonb,'metadata','createdByUsername') AS created_by,
+    jsonb_extract_path_text(items_json.jsonb,'metadata','createdDate')::timestamp with time zone AS date_created,
+    jsonb_extract_path_text(items_json.jsonb,'metadata','updatedByUsername') AS updated_by,
+    jsonb_extract_path_text(items_json.jsonb,'metadata','updatedDate')::timestamp with time zone AS date_updated,
     NULL AS unique_id_prefix,
     NULL AS org_due_date_time,
     NULL AS volume_number
 FROM
-    folio_inventory.item AS items
-    JOIN folio_inventory.holdings_record AS holdings ON holdings.id = items.holdingsrecordid
-    LEFT JOIN folio_inventory.location AS locations ON items.effectivelocationid = locations.id;
+    folio_inventory.item__t AS items
+    JOIN folio_inventory.item AS items_json ON items_json.id = items.id
+    JOIN folio_inventory.holdings_record__t AS holdings ON holdings.id = items.holdings_record_id
+    LEFT JOIN folio_inventory.location__t AS locations ON items.effective_location_id = locations.id;
 
 /*ItemNote*/
 /* ~2 min. */
