@@ -535,12 +535,12 @@ CREATE TABLE local_ole.ole_ds_item_t (
     location VARCHAR(600),
     location_level VARCHAR(600),
     call_number_type_id UUID,
-    call_number_prefix VARCHAR(40),
+    call_number_prefix TEXT,
     call_number VARCHAR(100),
     shelving_order VARCHAR(300),
     enumeration VARCHAR(100),
     chronology VARCHAR(100),
-    copy_number VARCHAR(40),
+    copy_number TEXT,
     num_pieces TEXT,
     desc_of_pieces VARCHAR(400),
     purchase_order_line_item_id VARCHAR(45),
@@ -675,7 +675,7 @@ CREATE TABLE local_ole.ole_dlvr_circ_record (
     cir_his_rec_id VARCHAR(40) NOT NULL,
     loan_tran_id VARCHAR(40) NOT NULL,
     cir_policy_id TEXT,
-    ole_ptrn_id VARCHAR(40) NOT NULL,
+    ole_ptrn_id VARCHAR(40),
     ptrn_typ_id VARCHAR(40),
     affiliation_id VARCHAR(40),
     department_id VARCHAR(40),
@@ -1014,11 +1014,8 @@ ALTER TABLE local_ole.krim_role_mbr_t ADD CONSTRAINT FK_krim_role_mbr_t_krim_rol
 ALTER TABLE local_ole.krim_role_mbr_t ADD CONSTRAINT FK_krim_role_mbr_t_krim_prncpl_t_mbr_id FOREIGN KEY(mbr_id) REFERENCES local_ole.krim_prncpl_t(prncpl_id) ON DELETE CASCADE;
 ALTER TABLE local_ole.ole_locn_t ADD CONSTRAINT FK_ole_locn_t_ole_locn_t_parent_locn_id FOREIGN KEY(parent_locn_id) REFERENCES local_ole.ole_locn_t(locn_id);
 ALTER TABLE local_ole.ole_ds_bib_info_t ADD CONSTRAINT FK_ole_ds_bib_info_t_ole_ds_bib_t_bib_id FOREIGN KEY(bib_id) REFERENCES local_ole.ole_ds_bib_t(bib_id);
-ALTER TABLE local_ole.ole_ds_holdings_t ADD CONSTRAINT FK_ole_ds_holdings_t_ole_ds_bib_t_bib_id FOREIGN KEY(bib_id) REFERENCES local_ole.ole_ds_bib_t(bib_id);
-ALTER TABLE local_ole.ole_ds_holdings_note_t ADD CONSTRAINT FK_ole_ds_holdings_note_t_ole_ds_holdings_t_holdings_id FOREIGN KEY(holdings_id) REFERENCES local_ole.ole_ds_holdings_t(holdings_id);
 ALTER TABLE local_ole.ole_ds_item_t ADD CONSTRAINT FK_ole_ds_item_t_ole_ptrn_t_current_borrower FOREIGN KEY(current_borrower) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id);
 ALTER TABLE local_ole.ole_ds_item_t ADD CONSTRAINT FK_ole_ds_item_t_ole_ptrn_t_proxy_borrower FOREIGN KEY(proxy_borrower) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id);
-ALTER TABLE local_ole.ole_ds_item_note_t ADD CONSTRAINT FK_ole_ds_item_note_t_ole_ds_item_t_item_id FOREIGN KEY(item_id) REFERENCES local_ole.ole_ds_item_t(item_id);
 ALTER TABLE local_ole.ole_ds_item_holdings_t ADD CONSTRAINT FK_ole_ds_item_holdings_t_ole_ds_holdings_t_holdings_id FOREIGN KEY(holdings_id) REFERENCES local_ole.ole_ds_holdings_t(holdings_id);
 ALTER TABLE local_ole.ole_ds_item_holdings_t ADD CONSTRAINT FK_ole_ds_item_holdings_t_ole_ds_item_t_item_id FOREIGN KEY(item_id) REFERENCES local_ole.ole_ds_item_t(item_id);
 ALTER TABLE local_ole.ole_crcl_dsk_t ADD CONSTRAINT FK_ole_crcl_dsk_t_ole_dlvr_rqst_typ_t_dflt_rqst_typ_id FOREIGN KEY(dflt_rqst_typ_id) REFERENCES local_ole.ole_dlvr_rqst_typ_t(ole_rqst_typ_id);
@@ -1042,7 +1039,6 @@ ALTER TABLE local_ole.ole_dlvr_temp_circ_record ADD CONSTRAINT FK_ole_dlvr_temp_
 ALTER TABLE local_ole.ole_dlvr_temp_circ_record ADD CONSTRAINT FK_ole_dlvr_temp_circ_record_ole_crcl_dsk_t_circ_loc_id FOREIGN KEY(circ_loc_id) REFERENCES local_ole.ole_crcl_dsk_t(ole_crcl_dsk_id);
 ALTER TABLE local_ole.ole_dlvr_temp_circ_record ADD CONSTRAINT FK_ole_dlvr_temp_circ_record_ole_ptrn_t_ole_proxy_ptrn_id FOREIGN KEY(ole_proxy_ptrn_id) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id);
 ALTER TABLE local_ole.ole_dlvr_temp_circ_record ADD CONSTRAINT FK_ole_dlvr_temp_circ_record_ole_ds_item_t_uc_item_id FOREIGN KEY(uc_item_id) REFERENCES local_ole.ole_ds_item_t(item_id);
-ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_record_ole_ptrn_t_ole_ptrn_id FOREIGN KEY(ole_ptrn_id) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id);
 ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_record_ole_dlvr_borr_typ_t_ptrn_typ_id FOREIGN KEY(ptrn_typ_id) REFERENCES local_ole.ole_dlvr_borr_typ_t(dlvr_borr_typ_id);
 ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_record_krim_entity_afltn_t_affiliation_id FOREIGN KEY(affiliation_id) REFERENCES local_ole.krim_entity_afltn_t(entity_afltn_id);
 ALTER TABLE local_ole.ole_dlvr_circ_record ADD CONSTRAINT FK_ole_dlvr_circ_record_ole_dlvr_stat_cat_t_statistical_cate136 FOREIGN KEY(statistical_category) REFERENCES local_ole.ole_dlvr_stat_cat_t(ole_dlvr_stat_cat_id);
@@ -1063,7 +1059,6 @@ ALTER TABLE local_ole.ole_dlvr_loan_t ADD CONSTRAINT FK_ole_dlvr_loan_t_ole_dlvr
 ALTER TABLE local_ole.ole_dlvr_loan_t ADD CONSTRAINT FK_ole_dlvr_loan_t_ole_dlvr_ptrn_bill_t_repmnt_fee_ptrn_bill_id FOREIGN KEY(repmnt_fee_ptrn_bill_id) REFERENCES local_ole.ole_dlvr_ptrn_bill_t(ptrn_bill_id);
 ALTER TABLE local_ole.ole_dlvr_loan_t ADD CONSTRAINT FK_ole_dlvr_loan_t_ole_ds_item_t_uc_item_id FOREIGN KEY(uc_item_id) REFERENCES local_ole.ole_ds_item_t(item_id);
 ALTER TABLE local_ole.ole_return_history_t ADD CONSTRAINT FK_ole_return_history_t_krim_prncpl_t_operator FOREIGN KEY(operator) REFERENCES local_ole.krim_prncpl_t(prncpl_id);
-ALTER TABLE local_ole.ole_return_history_t ADD CONSTRAINT FK_ole_return_history_t_ole_ds_item_t_uc_item_id FOREIGN KEY(uc_item_id) REFERENCES local_ole.ole_ds_item_t(item_id);
 ALTER TABLE local_ole.ole_dlvr_recently_returned_t ADD CONSTRAINT FK_ole_dlvr_recently_returned_t_ole_crcl_dsk_t_circ_desk_id FOREIGN KEY(circ_desk_id) REFERENCES local_ole.ole_crcl_dsk_t(ole_crcl_dsk_id);
 ALTER TABLE local_ole.ole_dlvr_recently_returned_t ADD CONSTRAINT FK_ole_dlvr_recently_returned_t_ole_ds_item_t_uc_item_id FOREIGN KEY(uc_item_id) REFERENCES local_ole.ole_ds_item_t(item_id);
 ALTER TABLE local_ole.ole_dlvr_ptrn_bill_t ADD CONSTRAINT FK_ole_dlvr_ptrn_bill_t_ole_ptrn_t_ole_ptrn_id FOREIGN KEY(ole_ptrn_id) REFERENCES local_ole.ole_ptrn_t(ole_ptrn_id);
